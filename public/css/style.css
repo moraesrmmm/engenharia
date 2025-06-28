@@ -1020,6 +1020,7 @@ html {
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.9rem;
+    margin-left: 1rem !important; /* Garantir espaçamento visual */
 }
 
 .back-to-home {

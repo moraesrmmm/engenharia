@@ -263,7 +263,7 @@ function gerarUrlFiltro($filtro, $valor) {
             <h3 class="results-title">
                 <i class="bi bi-grid"></i> Projetos Encontrados
             </h3>
-            <span class="results-count"><?= count($projetos) ?> resultado(s)</span>
+            <span class="results-count ms-3"><?= count($projetos) ?> resultado(s)</span>
         </div>
 
         <?php if (empty($projetos)): ?>

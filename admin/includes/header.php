@@ -32,11 +32,11 @@ $assetsPath = $adminPath . 'assets/';
                             <i class="bi bi-person-circle"></i> <?= $_SESSION['admin_usuario'] ?>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="views/cadastrar_projeto.php"><i class="bi bi-plus-circle"></i> Novo Projeto</a></li>
-                            <li><a class="dropdown-item" href="views/listar_projetos.php"><i class="bi bi-list"></i> Listar Projetos</a></li>
+                            <li><a class="dropdown-item" href="<?= $adminPath ?>dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="<?= $adminPath ?>views/cadastrar_projeto.php"><i class="bi bi-plus-circle"></i> Novo Projeto</a></li>
+                            <li><a class="dropdown-item" href="<?= $adminPath ?>views/listar_projetos.php"><i class="bi bi-list"></i> Listar Projetos</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="?logout=1"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
+                            <li><a class="dropdown-item text-danger" href="<?= $adminPath ?>dashboard.php?logout=1"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
                         </ul>
                     </div>
                 </div>
