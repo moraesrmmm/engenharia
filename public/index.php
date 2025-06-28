@@ -150,9 +150,6 @@ $projetos = $stmt->fetchAll();
                 </div>
                 <?php endif; ?>
               </div>
-              <p class="project-description">
-                <?= substr(htmlspecialchars($p['descricao']), 0, 100) ?>...
-              </p>
             </div>
           </div>
         </div>

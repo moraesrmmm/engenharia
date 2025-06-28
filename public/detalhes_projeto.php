@@ -207,7 +207,16 @@ $comodosData = $comodos->fetchAll();
                                 <i class="bi bi-house-door"></i>
                             </div>
                             <div class="info-title">Cômodos</div>
-                            <div class="info-value"><?= count($comodosData) ?> ambientes</div>
+                            <div class="info-value">
+                                <?php 
+                                // Contar todos os cômodos (dos andares + cômodos antigos)
+                                $total_comodos = count($comodosData);
+                                foreach ($comodos_por_andar as $comodos_andar) {
+                                    $total_comodos += count($comodos_andar);
+                                }
+                                echo $total_comodos;
+                                ?> ambientes
+                            </div>
                         </div>
                     </div>
                 </div>

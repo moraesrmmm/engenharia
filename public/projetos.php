@@ -6,12 +6,30 @@ require_once './../includes/funcoes.php';
 $filtros = [
     'search' => $_GET['search'] ?? '',
     'quartos' => $_GET['quartos'] ?? '',
+    'tipo_projeto' => $_GET['tipo_projeto'] ?? '',
     'preco_min' => $_GET['preco_min'] ?? '',
     'preco_max' => $_GET['preco_max'] ?? '',
-    'area_min' => $_GET['area_min'] ?? '',
-    'area_max' => $_GET['area_max'] ?? '',
+    'largura_terreno' => $_GET['largura_terreno'] ?? '',
     'destaque' => $_GET['destaque'] ?? ''
 ];
+
+// Buscar larguras de terreno disponíveis
+$larguras_stmt = $pdo->query("
+    SELECT DISTINCT largura_terreno 
+    FROM projetos 
+    WHERE ativo = TRUE AND largura_terreno > 0 
+    ORDER BY largura_terreno ASC
+");
+$larguras_disponiveis = $larguras_stmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Buscar tipos de projeto disponíveis
+$tipos_stmt = $pdo->query("
+    SELECT DISTINCT tipo_projeto 
+    FROM projetos 
+    WHERE ativo = TRUE AND tipo_projeto IS NOT NULL 
+    ORDER BY tipo_projeto ASC
+");
+$tipos_disponiveis = $tipos_stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Construir query dinâmica
 $where_conditions = ["p.ativo = TRUE"];
@@ -26,21 +44,27 @@ if (!empty($filtros['search'])) {
 
 if (!empty($filtros['quartos'])) {
     if ($filtros['quartos'] == '4') {
-        $where_conditions[] = "p.id IN (
-            SELECT DISTINCT c.projeto_id 
-            FROM comodos c 
-            WHERE c.tipo IN ('Quarto', 'Suíte') 
-            GROUP BY c.projeto_id 
-            HAVING COUNT(*) >= 4
-        )";
+        $where_conditions[] = "(
+            SELECT COUNT(*) 
+            FROM (
+                SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+                UNION ALL
+                SELECT 1 FROM comodos c 
+                INNER JOIN andares a ON c.andar_id = a.id 
+                WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+            ) AS quartos_total
+        ) >= 4";
     } else {
-        $where_conditions[] = "p.id IN (
-            SELECT DISTINCT c.projeto_id 
-            FROM comodos c 
-            WHERE c.tipo IN ('Quarto', 'Suíte') 
-            GROUP BY c.projeto_id 
-            HAVING COUNT(*) = ?
-        )";
+        $where_conditions[] = "(
+            SELECT COUNT(*) 
+            FROM (
+                SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+                UNION ALL
+                SELECT 1 FROM comodos c 
+                INNER JOIN andares a ON c.andar_id = a.id 
+                WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+            ) AS quartos_total
+        ) = ?";
         $params[] = (int)$filtros['quartos'];
     }
 }
@@ -55,14 +79,14 @@ if (!empty($filtros['preco_max'])) {
     $params[] = (float)$filtros['preco_max'];
 }
 
-if (!empty($filtros['area_min'])) {
-    $where_conditions[] = "p.area_terreno >= ?";
-    $params[] = (float)$filtros['area_min'];
+if (!empty($filtros['tipo_projeto'])) {
+    $where_conditions[] = "p.tipo_projeto = ?";
+    $params[] = $filtros['tipo_projeto'];
 }
 
-if (!empty($filtros['area_max'])) {
-    $where_conditions[] = "p.area_terreno <= ?";
-    $params[] = (float)$filtros['area_max'];
+if (!empty($filtros['largura_terreno'])) {
+    $where_conditions[] = "p.largura_terreno = ?";
+    $params[] = (float)$filtros['largura_terreno'];
 }
 
 if ($filtros['destaque'] === '1') {
@@ -74,12 +98,30 @@ $where_clause = implode(' AND ', $where_conditions);
 // Buscar projetos com filtros
 $sql = "
     SELECT p.*, 
-           COUNT(CASE WHEN c.tipo IN ('Quarto', 'Suíte') THEN 1 END) as quartos,
-           COUNT(c.id) as total_comodos 
+           (
+               -- Quartos diretos + quartos dos andares
+               SELECT COUNT(*) 
+               FROM (
+                   SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+                   UNION ALL
+                   SELECT 1 FROM comodos c 
+                   INNER JOIN andares a ON c.andar_id = a.id 
+                   WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+               ) AS quartos_total
+           ) as quartos,
+           (
+               -- Total de cômodos diretos + cômodos dos andares
+               SELECT COUNT(*) 
+               FROM (
+                   SELECT 1 FROM comodos c WHERE c.projeto_id = p.id
+                   UNION ALL
+                   SELECT 1 FROM comodos c 
+                   INNER JOIN andares a ON c.andar_id = a.id 
+                   WHERE a.projeto_id = p.id
+               ) AS comodos_total
+           ) as total_comodos 
     FROM projetos p 
-    LEFT JOIN comodos c ON p.id = c.projeto_id 
     WHERE {$where_clause}
-    GROUP BY p.id 
     ORDER BY p.destaque DESC, p.criado_em DESC
 ";
 
@@ -181,48 +223,59 @@ function gerarUrlFiltro($filtro, $valor) {
                 </div>
 
                 <!-- Filtros Avançados -->
-                <div class="row">
-                    <div class="col-md-3">
+                <div class="row g-3">
+                    <div class="col-lg-2 col-md-6">
                         <label class="form-label fw-bold">
                             <i class="bi bi-currency-dollar"></i> Preço Mínimo
                         </label>
                         <input type="number" class="form-control" name="preco_min" 
                                placeholder="Ex: 100000" value="<?= htmlspecialchars($filtros['preco_min']) ?>">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-2 col-md-6">
                         <label class="form-label fw-bold">
                             <i class="bi bi-currency-dollar"></i> Preço Máximo
                         </label>
                         <input type="number" class="form-control" name="preco_max" 
                                placeholder="Ex: 500000" value="<?= htmlspecialchars($filtros['preco_max']) ?>">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-bounding-box"></i> Área Mín (m²)
+                            <i class="bi bi-house-gear"></i> Tipo de Projeto
                         </label>
-                        <input type="number" class="form-control" name="area_min" 
-                               placeholder="Ex: 50" value="<?= htmlspecialchars($filtros['area_min']) ?>">
+                        <select class="form-select" name="tipo_projeto">
+                            <option value="">Todos os tipos</option>
+                            <?php foreach ($tipos_disponiveis as $tipo): ?>
+                                <option value="<?= htmlspecialchars($tipo) ?>" 
+                                        <?= $filtros['tipo_projeto'] === $tipo ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($tipo) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-bounding-box"></i> Área Máx (m²)
+                            <i class="bi bi-rulers"></i> Largura do Terreno
                         </label>
-                        <input type="number" class="form-control" name="area_max" 
-                               placeholder="Ex: 300" value="<?= htmlspecialchars($filtros['area_max']) ?>">
+                        <select class="form-select" name="largura_terreno">
+                            <option value="">Qualquer largura</option>
+                            <?php foreach ($larguras_disponiveis as $largura): ?>
+                                <option value="<?= $largura ?>" 
+                                        <?= $filtros['largura_terreno'] == $largura ? 'selected' : '' ?>>
+                                    <?= $largura ?>m
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                </div>
-
-                <!-- Filtro por Destaque -->
-                <div class="text-center mt-4">
-                    <div class="d-flex flex-wrap justify-content-center">
-                        <a href="<?= gerarUrlFiltro('destaque', '') ?>" 
-                           class="public-filter-chip <?= empty($filtros['destaque']) ? 'active' : '' ?>">
-                            <i class="bi bi-list"></i> Todos os Projetos
-                        </a>
-                        <a href="<?= gerarUrlFiltro('destaque', '1') ?>" 
-                           class="public-filter-chip <?= $filtros['destaque'] === '1' ? 'active' : '' ?>">
-                            <i class="bi bi-star-fill"></i> Projetos em Destaque
-                        </a>
+                    <div class="col-lg-2 col-md-12">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-star"></i> Destaque
+                        </label>
+                        <select class="form-select" name="destaque">
+                            <option value="">Todos</option>
+                            <option value="1" <?= $filtros['destaque'] === '1' ? 'selected' : '' ?>>
+                                Em destaque
+                            </option>
+                        </select>
                     </div>
                 </div>
 
@@ -317,10 +370,18 @@ function gerarUrlFiltro($filtro, $valor) {
                                 </p>
 
                                 <div class="public-project-meta">
-                                    <div class="public-meta-item">
-                                        <i class="bi bi-rulers public-meta-icon"></i>
-                                        <?= $projeto['largura_comprimento'] ?>
-                                    </div>
+                                    <?php if (!empty($projeto['tipo_projeto'])): ?>
+                                        <div class="public-meta-item">
+                                            <i class="bi bi-house-gear public-meta-icon"></i>
+                                            <?= htmlspecialchars($projeto['tipo_projeto']) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($projeto['largura_terreno'] && $projeto['comprimento_terreno']): ?>
+                                        <div class="public-meta-item">
+                                            <i class="bi bi-rulers public-meta-icon"></i>
+                                            <?= $projeto['largura_terreno'] ?>m x <?= $projeto['comprimento_terreno'] ?>m
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="public-meta-item">
                                         <i class="bi bi-bounding-box public-meta-icon"></i>
                                         <?= formatarArea($projeto['area_terreno']) ?>
@@ -378,13 +439,20 @@ function gerarUrlFiltro($filtro, $valor) {
             });
         }
 
-        // Auto-submit para campos numéricos
+        // Auto-submit para campos numéricos e selects
         const numericInputs = document.querySelectorAll('input[type="number"]');
         numericInputs.forEach(input => {
             input.addEventListener('change', function() {
                 setTimeout(() => {
                     document.getElementById('filtrosForm').submit();
                 }, 300);
+            });
+        });
+
+        const selectInputs = document.querySelectorAll('select[name="tipo_projeto"], select[name="largura_terreno"], select[name="destaque"]');
+        selectInputs.forEach(select => {
+            select.addEventListener('change', function() {
+                document.getElementById('filtrosForm').submit();
             });
         });
 
