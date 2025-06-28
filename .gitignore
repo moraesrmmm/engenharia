@@ -1,0 +1,73 @@
+# Uploads (imagens dos projetos)
+uploads/*
+!uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Arquivos de configuração sensíveis
+config/config.php
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+log/
+
+# Cache
+cache/
+temp/
+tmp/
+
+# Arquivos do sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Arquivos do editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependências (se usar Composer)
+vendor/
+composer.lock
+
+# Node modules (se usar npm/yarn)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Arquivos de backup
+*.bak
+*.backup
+*.old
+*.orig
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de sessão PHP
+sessions/
+tmp/
+
+# Arquivos de teste
+teste-*.html
+test-*.php
+debug.php
+phpinfo.php
+
+# Documentação gerada
+docs/build/
+
+# Arquivos específicos do projeto
+setup_*.php
+criar_admin.php
+gerar_projetos_exemplo.php
