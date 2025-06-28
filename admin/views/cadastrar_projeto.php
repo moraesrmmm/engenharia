@@ -88,53 +88,53 @@ function isChecked($value, $form_value) {
                                 <option value="Chalé" <?= isSelected('Chalé', $form_data['tipo_projeto'] ?? '') ?>>Chalé</option>
                             </optgroup>
                             <optgroup label="Residencial Múltiplos Pavimentos">
-                                <option value="Sobrado">Sobrado</option>
-                                <option value="Casa Duplex">Casa Duplex</option>
-                                <option value="Casa Triplex">Casa Triplex</option>
-                                <option value="Casa com Mezanino">Casa com Mezanino</option>
-                                <option value="Casa com Loft">Casa com Loft</option>
-                                <option value="Mansão">Mansão</option>
+                                <option value="Sobrado" <?= isSelected('Sobrado', $form_data['tipo_projeto'] ?? '') ?>>Sobrado</option>
+                                <option value="Casa Duplex" <?= isSelected('Casa Duplex', $form_data['tipo_projeto'] ?? '') ?>>Casa Duplex</option>
+                                <option value="Casa Triplex" <?= isSelected('Casa Triplex', $form_data['tipo_projeto'] ?? '') ?>>Casa Triplex</option>
+                                <option value="Casa com Mezanino" <?= isSelected('Casa com Mezanino', $form_data['tipo_projeto'] ?? '') ?>>Casa com Mezanino</option>
+                                <option value="Casa com Loft" <?= isSelected('Casa com Loft', $form_data['tipo_projeto'] ?? '') ?>>Casa com Loft</option>
+                                <option value="Mansão" <?= isSelected('Mansão', $form_data['tipo_projeto'] ?? '') ?>>Mansão</option>
                             </optgroup>
                             <optgroup label="Estilos Arquitetônicos">
-                                <option value="Residência Moderna">Residência Moderna</option>
-                                <option value="Residência Clássica">Residência Clássica</option>
-                                <option value="Residência Minimalista">Residência Minimalista</option>
+                                <option value="Residência Moderna" <?= isSelected('Residência Moderna', $form_data['tipo_projeto'] ?? '') ?>>Residência Moderna</option>
+                                <option value="Residência Clássica" <?= isSelected('Residência Clássica', $form_data['tipo_projeto'] ?? '') ?>>Residência Clássica</option>
+                                <option value="Residência Minimalista" <?= isSelected('Residência Minimalista', $form_data['tipo_projeto'] ?? '') ?>>Residência Minimalista</option>
                             </optgroup>
                             <optgroup label="Construção Especial">
-                                <option value="Casa Container">Casa Container</option>
-                                <option value="Casa Sustentável">Casa Sustentável</option>
-                                <option value="Casa Pré-Fabricada">Casa Pré-Fabricada</option>
-                                <option value="Casa com Edícula">Casa com Edícula</option>
+                                <option value="Casa Container" <?= isSelected('Casa Container', $form_data['tipo_projeto'] ?? '') ?>>Casa Container</option>
+                                <option value="Casa Sustentável" <?= isSelected('Casa Sustentável', $form_data['tipo_projeto'] ?? '') ?>>Casa Sustentável</option>
+                                <option value="Casa Pré-Fabricada" <?= isSelected('Casa Pré-Fabricada', $form_data['tipo_projeto'] ?? '') ?>>Casa Pré-Fabricada</option>
+                                <option value="Casa com Edícula" <?= isSelected('Casa com Edícula', $form_data['tipo_projeto'] ?? '') ?>>Casa com Edícula</option>
                             </optgroup>
                             <optgroup label="Apartamentos">
-                                <option value="Kitnet">Kitnet</option>
-                                <option value="Studio">Studio</option>
-                                <option value="Apartamento">Apartamento</option>
-                                <option value="Cobertura">Cobertura</option>
+                                <option value="Kitnet" <?= isSelected('Kitnet', $form_data['tipo_projeto'] ?? '') ?>>Kitnet</option>
+                                <option value="Studio" <?= isSelected('Studio', $form_data['tipo_projeto'] ?? '') ?>>Studio</option>
+                                <option value="Apartamento" <?= isSelected('Apartamento', $form_data['tipo_projeto'] ?? '') ?>>Apartamento</option>
+                                <option value="Cobertura" <?= isSelected('Cobertura', $form_data['tipo_projeto'] ?? '') ?>>Cobertura</option>
                             </optgroup>
                             <optgroup label="Predial">
-                                <option value="Prédio Residencial">Prédio Residencial</option>
-                                <option value="Prédio Comercial">Prédio Comercial</option>
+                                <option value="Prédio Residencial" <?= isSelected('Prédio Residencial', $form_data['tipo_projeto'] ?? '') ?>>Prédio Residencial</option>
+                                <option value="Prédio Comercial" <?= isSelected('Prédio Comercial', $form_data['tipo_projeto'] ?? '') ?>>Prédio Comercial</option>
                             </optgroup>
                             <optgroup label="Comercial">
-                                <option value="Casa Comercial">Casa Comercial</option>
-                                <option value="Escritório">Escritório</option>
-                                <option value="Loja">Loja</option>
-                                <option value="Consultório">Consultório</option>
-                                <option value="Clínica">Clínica</option>
-                                <option value="Restaurante">Restaurante</option>
-                                <option value="Cafeteria">Cafeteria</option>
-                                <option value="Academia">Academia</option>
-                                <option value="Salão de Beleza">Salão de Beleza</option>
+                                <option value="Casa Comercial" <?= isSelected('Casa Comercial', $form_data['tipo_projeto'] ?? '') ?>>Casa Comercial</option>
+                                <option value="Escritório" <?= isSelected('Escritório', $form_data['tipo_projeto'] ?? '') ?>>Escritório</option>
+                                <option value="Loja" <?= isSelected('Loja', $form_data['tipo_projeto'] ?? '') ?>>Loja</option>
+                                <option value="Consultório" <?= isSelected('Consultório', $form_data['tipo_projeto'] ?? '') ?>>Consultório</option>
+                                <option value="Clínica" <?= isSelected('Clínica', $form_data['tipo_projeto'] ?? '') ?>>Clínica</option>
+                                <option value="Restaurante" <?= isSelected('Restaurante', $form_data['tipo_projeto'] ?? '') ?>>Restaurante</option>
+                                <option value="Cafeteria" <?= isSelected('Cafeteria', $form_data['tipo_projeto'] ?? '') ?>>Cafeteria</option>
+                                <option value="Academia" <?= isSelected('Academia', $form_data['tipo_projeto'] ?? '') ?>>Academia</option>
+                                <option value="Salão de Beleza" <?= isSelected('Salão de Beleza', $form_data['tipo_projeto'] ?? '') ?>>Salão de Beleza</option>
                             </optgroup>
                             <optgroup label="Industrial">
-                                <option value="Galpão">Galpão</option>
-                                <option value="Barracão">Barracão</option>
-                                <option value="Oficina">Oficina</option>
-                                <option value="Depósito">Depósito</option>
-                                <option value="Armazém">Armazém</option>
+                                <option value="Galpão" <?= isSelected('Galpão', $form_data['tipo_projeto'] ?? '') ?>>Galpão</option>
+                                <option value="Barracão" <?= isSelected('Barracão', $form_data['tipo_projeto'] ?? '') ?>>Barracão</option>
+                                <option value="Oficina" <?= isSelected('Oficina', $form_data['tipo_projeto'] ?? '') ?>>Oficina</option>
+                                <option value="Depósito" <?= isSelected('Depósito', $form_data['tipo_projeto'] ?? '') ?>>Depósito</option>
+                                <option value="Armazém" <?= isSelected('Armazém', $form_data['tipo_projeto'] ?? '') ?>>Armazém</option>
                             </optgroup>
-                            <option value="Outro">Outro</option>
+                            <option value="Outro" <?= isSelected('Outro', $form_data['tipo_projeto'] ?? '') ?>>Outro</option>
                         </select>
                         <div class="invalid-feedback">Por favor, selecione o tipo de projeto.</div>
                         <small class="text-muted">Escolha a categoria que melhor descreve o projeto</small>
@@ -199,7 +199,11 @@ function isChecked($value, $form_value) {
                             <i class="bi bi-building"></i> Área Construída (m²)
                         </label>
                         <input type="number" step="0.01" name="area_construida" class="form-control" readonly 
+                               value="<?= htmlspecialchars($form_data['area_construida'] ?? '') ?>"
                                placeholder="0.00" style="background-color: #f8f9fa;" id="area-construida-display">
+                        <!-- Campo hidden para enviar o valor calculado -->
+                        <input type="hidden" name="area_construida_calculated" id="area-construida-hidden"
+                               value="<?= htmlspecialchars($form_data['area_construida'] ?? '') ?>">
                         <small class="text-muted">Soma automática dos andares</small>
                     </div>
                 </div>
@@ -317,10 +321,18 @@ function isChecked($value, $form_value) {
 
             <!-- Botões de Ação -->
             <hr class="section-divider">
-            <div class="d-flex gap-3 justify-content-end">
-                <a href="../dashboard.php" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
+            <div class="d-flex gap-3 justify-content-between">
+                <div class="d-flex gap-2">
+                    <a href="../backend/limpar_formulario.php?redirect=../dashboard.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                    <a href="../backend/limpar_formulario.php?redirect=../views/cadastrar_projeto.php" class="btn btn-outline-warning">
+                        <i class="bi bi-eraser"></i> Limpar
+                    </a>
+                    <button type="button" class="btn btn-outline-info" onclick="limparFormularioRapido()">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                </div>
                 <button type="submit" class="btn btn-primary" id="salvar-btn">
                     <i class="bi bi-check-circle"></i> Salvar Projeto
                 </button>
@@ -463,8 +475,14 @@ function calcularAreaConstruida() {
     });
     
     const areaDisplay = document.getElementById('area-construida-display');
+    const areaHidden = document.getElementById('area-construida-hidden');
+    
     if (areaDisplay) {
         areaDisplay.value = totalArea.toFixed(2);
+    }
+    
+    if (areaHidden) {
+        areaHidden.value = totalArea.toFixed(2);
     }
 }
 
@@ -576,6 +594,65 @@ function updateProgress() {
     
     const progress = (filledFields / requiredFields.length) * 100;
     document.getElementById('form-progress').style.width = progress + '%';
+}
+
+// Função para limpar formulário rapidamente (sem recarregar página)
+function limparFormularioRapido() {
+    if (confirm('Tem certeza que deseja limpar todos os campos do formulário?')) {
+        const form = document.getElementById('projeto-form');
+        
+        // Limpa todos os inputs, textareas e selects
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.checked = false;
+            } else if (field.type === 'file') {
+                field.value = '';
+            } else {
+                field.value = '';
+            }
+        });
+        
+        // Limpa preview de imagem
+        const preview = document.getElementById('preview-imagem');
+        if (preview) {
+            preview.style.display = 'none';
+            preview.src = '';
+        }
+        
+        // Limpa info do arquivo
+        const arquivoInfo = document.getElementById('arquivo-info');
+        if (arquivoInfo) {
+            arquivoInfo.style.display = 'none';
+        }
+        
+        // Limpa andares dinâmicos
+        const andaresContainer = document.getElementById('andares-container');
+        andaresContainer.innerHTML = '';
+        andaresCount = 0;
+        
+        // Atualiza progresso
+        updateProgress();
+        
+        // Remove classe de validação
+        form.classList.remove('was-validated');
+        
+        // Mostra notificação de sucesso
+        const alertHtml = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> Formulário limpo com sucesso!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        document.querySelector('.admin-card-body').insertAdjacentHTML('afterbegin', alertHtml);
+        
+        // Remove o alerta automaticamente após 3 segundos
+        setTimeout(() => {
+            const alert = document.querySelector('.alert-success');
+            if (alert) {
+                alert.remove();
+            }
+        }, 3000);
+    }
 }
 
 // Validação antes do envio

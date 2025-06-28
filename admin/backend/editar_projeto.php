@@ -53,6 +53,7 @@ try {
     $custo_materiais = floatval($_POST['custo_materiais'] ?? 0);
     $video_url = trim($_POST['video_url'] ?? '');
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $area_construida_frontend = floatval($_POST['area_construida_calculated'] ?? 0);
 
     if (empty($titulo) || empty($descricao) || empty($tipo_projeto) || $largura_terreno <= 0 || $comprimento_terreno <= 0 || $area_terreno <= 0) {
         throw new Exception('Todos os campos obrigatórios devem ser preenchidos corretamente!');
@@ -111,6 +112,45 @@ try {
         }
     }
 
+    // Upload do arquivo ZIP (opcional)
+    $novo_arquivo = null;
+    if (!empty($_FILES['arquivo_projeto']['name'])) {
+        $upload_dir = '../../public/uploads/projetos/';
+        
+        // Cria diretório se não existir
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $arquivo_tmp = $_FILES['arquivo_projeto']['tmp_name'];
+        $arquivo_nome = $_FILES['arquivo_projeto']['name'];
+        $arquivo_ext = strtolower(pathinfo($arquivo_nome, PATHINFO_EXTENSION));
+
+        // Validações do arquivo ZIP
+        if ($arquivo_ext !== 'zip') {
+            throw new Exception('Apenas arquivos ZIP são permitidos!');
+        }
+
+        if ($_FILES['arquivo_projeto']['size'] > 50 * 1024 * 1024) { // 50MB
+            throw new Exception('Arquivo muito grande. Tamanho máximo: 50MB');
+        }
+
+        // Gera nome único para o arquivo
+        $novo_nome = uniqid('projeto_') . '_' . time() . '.zip';
+        $caminho_completo = $upload_dir . $novo_nome;
+
+        if (!move_uploaded_file($arquivo_tmp, $caminho_completo)) {
+            throw new Exception('Erro ao fazer upload do arquivo do projeto!');
+        }
+
+        $novo_arquivo = $novo_nome;
+
+        // Remove arquivo antigo se um novo foi enviado
+        if (!empty($projeto_atual['arquivo_projeto']) && file_exists($upload_dir . $projeto_atual['arquivo_projeto'])) {
+            unlink($upload_dir . $projeto_atual['arquivo_projeto']);
+        }
+    }
+
     // Converte URL do YouTube
     $video_url = convertYouTubeUrl($video_url);
 
@@ -135,6 +175,12 @@ try {
     if ($nova_imagem) {
         $sql_update .= ", capa_imagem = ?";
         $params[] = $nova_imagem;
+    }
+
+    // Adiciona atualização do arquivo se um novo foi enviado
+    if ($novo_arquivo) {
+        $sql_update .= ", arquivo_projeto = ?";
+        $params[] = $novo_arquivo;
     }
 
     $sql_update .= " WHERE id = ?";
@@ -212,6 +258,19 @@ try {
         }
     }
 
+    // Calcular área construída (usa valor do frontend se disponível, senão calcula baseado nos andares)
+    $area_construida = $area_construida_frontend;
+    
+    if ($area_construida <= 0) {
+        $stmt = $pdo->prepare("SELECT COALESCE(SUM(area), 0) as area_total FROM andares WHERE projeto_id = ? AND ativo = TRUE");
+        $stmt->execute([$projeto_id]);
+        $area_construida = $stmt->fetchColumn();
+    }
+
+    // Atualizar área construída no projeto
+    $stmt = $pdo->prepare("UPDATE projetos SET area_construida = ? WHERE id = ?");
+    $stmt->execute([$area_construida, $projeto_id]);
+
     // Confirma transação
     $pdo->commit();
     
@@ -231,6 +290,11 @@ try {
     // Remove arquivo de imagem se foi feito upload mas houve erro
     if (!empty($nova_imagem) && file_exists('../../public/uploads/' . $nova_imagem)) {
         unlink('../../public/uploads/' . $nova_imagem);
+    }
+    
+    // Remove arquivo ZIP se foi feito upload mas houve erro
+    if (!empty($novo_arquivo) && file_exists('../../public/uploads/projetos/' . $novo_arquivo)) {
+        unlink('../../public/uploads/projetos/' . $novo_arquivo);
     }
     
     // Salvar dados do formulário para repreenchimento

@@ -112,6 +112,7 @@ try {
     $custo_materiais = !empty($_POST['custo_materiais']) ? floatval($_POST['custo_materiais']) : null;
     $video_url = convertYouTubeUrl(trim($_POST['video_url'] ?? ''));
     $destaque = isset($_POST['destaque']) ? 1 : 0;
+    $area_construida_frontend = floatval($_POST['area_construida_calculated'] ?? 0);
 
     // Salva projeto com novos campos (tipo, largura, comprimento e área do terreno + arquivo)
     $stmt = $pdo->prepare("
@@ -196,6 +197,19 @@ try {
         $stmt->execute([$projeto_id, $area_terreno]);
         $totalAndares = 1;
     }
+
+    // Calcular área construída (usa valor do frontend se disponível, senão calcula baseado nos andares)
+    $area_construida = $area_construida_frontend;
+    
+    if ($area_construida <= 0) {
+        $stmt = $pdo->prepare("SELECT COALESCE(SUM(area), 0) as area_total FROM andares WHERE projeto_id = ? AND ativo = TRUE");
+        $stmt->execute([$projeto_id]);
+        $area_construida = $stmt->fetchColumn();
+    }
+
+    // Atualizar área construída no projeto
+    $stmt = $pdo->prepare("UPDATE projetos SET area_construida = ? WHERE id = ?");
+    $stmt->execute([$area_construida, $projeto_id]);
 
     // Confirma transação
     $pdo->commit();

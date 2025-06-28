@@ -45,14 +45,13 @@ require_once '../includes/header.php';
 
 // Recuperar dados do formulário em caso de erro ou usar dados do projeto
 $form_data = $_SESSION['form_data'] ?? [];
-// Limpar dados após uso
-if (isset($_SESSION['form_data'])) {
-    unset($_SESSION['form_data']);
-}
 
 // Função helper para obter valor do campo (prioriza form_data sobre dados do projeto)
 function getFieldValue($field, $form_data, $projeto) {
-    return $form_data[$field] ?? $projeto[$field] ?? '';
+    $value = $form_data[$field] ?? $projeto[$field] ?? '';
+    // Debug: pode ser removido depois
+    // error_log("Campo: $field, Form: " . ($form_data[$field] ?? 'null') . ", Projeto: " . ($projeto[$field] ?? 'null') . ", Final: $value");
+    return $value;
 }
 
 // Função helper para marcar option selecionada
@@ -63,6 +62,11 @@ function isSelected($value, $current_value) {
 // Função helper para marcar checkbox/radio
 function isChecked($value, $current_value) {
     return $value == $current_value ? 'checked' : '';
+}
+
+// Limpar dados da sessão após uso (só se houver dados)
+if (!empty($_SESSION['form_data'])) {
+    unset($_SESSION['form_data']);
 }
 ?>
 
@@ -156,53 +160,53 @@ function isChecked($value, $current_value) {
                                 <option value="Chalé" <?= isSelected('Chalé', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Chalé</option>
                             </optgroup>
                             <optgroup label="Residencial Múltiplos Pavimentos">
-                                <option value="Sobrado" <?= ($projeto['tipo_projeto'] ?? '') == 'Sobrado' ? 'selected' : '' ?>>Sobrado</option>
-                                <option value="Casa Duplex" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Duplex' ? 'selected' : '' ?>>Casa Duplex</option>
-                                <option value="Casa Triplex" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Triplex' ? 'selected' : '' ?>>Casa Triplex</option>
-                                <option value="Casa com Mezanino" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Mezanino' ? 'selected' : '' ?>>Casa com Mezanino</option>
-                                <option value="Casa com Loft" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Loft' ? 'selected' : '' ?>>Casa com Loft</option>
-                                <option value="Mansão" <?= ($projeto['tipo_projeto'] ?? '') == 'Mansão' ? 'selected' : '' ?>>Mansão</option>
+                                <option value="Sobrado" <?= isSelected('Sobrado', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Sobrado</option>
+                                <option value="Casa Duplex" <?= isSelected('Casa Duplex', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Duplex</option>
+                                <option value="Casa Triplex" <?= isSelected('Casa Triplex', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Triplex</option>
+                                <option value="Casa com Mezanino" <?= isSelected('Casa com Mezanino', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa com Mezanino</option>
+                                <option value="Casa com Loft" <?= isSelected('Casa com Loft', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa com Loft</option>
+                                <option value="Mansão" <?= isSelected('Mansão', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Mansão</option>
                             </optgroup>
                             <optgroup label="Estilos Arquitetônicos">
-                                <option value="Residência Moderna" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Moderna' ? 'selected' : '' ?>>Residência Moderna</option>
-                                <option value="Residência Clássica" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Clássica' ? 'selected' : '' ?>>Residência Clássica</option>
-                                <option value="Residência Minimalista" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Minimalista' ? 'selected' : '' ?>>Residência Minimalista</option>
+                                <option value="Residência Moderna" <?= isSelected('Residência Moderna', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Residência Moderna</option>
+                                <option value="Residência Clássica" <?= isSelected('Residência Clássica', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Residência Clássica</option>
+                                <option value="Residência Minimalista" <?= isSelected('Residência Minimalista', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Residência Minimalista</option>
                             </optgroup>
                             <optgroup label="Construção Especial">
-                                <option value="Casa Container" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Container' ? 'selected' : '' ?>>Casa Container</option>
-                                <option value="Casa Sustentável" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Sustentável' ? 'selected' : '' ?>>Casa Sustentável</option>
-                                <option value="Casa Pré-Fabricada" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Pré-Fabricada' ? 'selected' : '' ?>>Casa Pré-Fabricada</option>
-                                <option value="Casa com Edícula" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Edícula' ? 'selected' : '' ?>>Casa com Edícula</option>
+                                <option value="Casa Container" <?= isSelected('Casa Container', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Container</option>
+                                <option value="Casa Sustentável" <?= isSelected('Casa Sustentável', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Sustentável</option>
+                                <option value="Casa Pré-Fabricada" <?= isSelected('Casa Pré-Fabricada', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Pré-Fabricada</option>
+                                <option value="Casa com Edícula" <?= isSelected('Casa com Edícula', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa com Edícula</option>
                             </optgroup>
                             <optgroup label="Apartamentos">
-                                <option value="Kitnet" <?= ($projeto['tipo_projeto'] ?? '') == 'Kitnet' ? 'selected' : '' ?>>Kitnet</option>
-                                <option value="Studio" <?= ($projeto['tipo_projeto'] ?? '') == 'Studio' ? 'selected' : '' ?>>Studio</option>
-                                <option value="Apartamento" <?= ($projeto['tipo_projeto'] ?? '') == 'Apartamento' ? 'selected' : '' ?>>Apartamento</option>
-                                <option value="Cobertura" <?= ($projeto['tipo_projeto'] ?? '') == 'Cobertura' ? 'selected' : '' ?>>Cobertura</option>
+                                <option value="Kitnet" <?= isSelected('Kitnet', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Kitnet</option>
+                                <option value="Studio" <?= isSelected('Studio', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Studio</option>
+                                <option value="Apartamento" <?= isSelected('Apartamento', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Apartamento</option>
+                                <option value="Cobertura" <?= isSelected('Cobertura', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Cobertura</option>
                             </optgroup>
                             <optgroup label="Predial">
-                                <option value="Prédio Residencial" <?= ($projeto['tipo_projeto'] ?? '') == 'Prédio Residencial' ? 'selected' : '' ?>>Prédio Residencial</option>
-                                <option value="Prédio Comercial" <?= ($projeto['tipo_projeto'] ?? '') == 'Prédio Comercial' ? 'selected' : '' ?>>Prédio Comercial</option>
+                                <option value="Prédio Residencial" <?= isSelected('Prédio Residencial', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Prédio Residencial</option>
+                                <option value="Prédio Comercial" <?= isSelected('Prédio Comercial', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Prédio Comercial</option>
                             </optgroup>
                             <optgroup label="Comercial">
-                                <option value="Casa Comercial" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Comercial' ? 'selected' : '' ?>>Casa Comercial</option>
-                                <option value="Escritório" <?= ($projeto['tipo_projeto'] ?? '') == 'Escritório' ? 'selected' : '' ?>>Escritório</option>
-                                <option value="Loja" <?= ($projeto['tipo_projeto'] ?? '') == 'Loja' ? 'selected' : '' ?>>Loja</option>
-                                <option value="Consultório" <?= ($projeto['tipo_projeto'] ?? '') == 'Consultório' ? 'selected' : '' ?>>Consultório</option>
-                                <option value="Clínica" <?= ($projeto['tipo_projeto'] ?? '') == 'Clínica' ? 'selected' : '' ?>>Clínica</option>
-                                <option value="Restaurante" <?= ($projeto['tipo_projeto'] ?? '') == 'Restaurante' ? 'selected' : '' ?>>Restaurante</option>
-                                <option value="Cafeteria" <?= ($projeto['tipo_projeto'] ?? '') == 'Cafeteria' ? 'selected' : '' ?>>Cafeteria</option>
-                                <option value="Academia" <?= ($projeto['tipo_projeto'] ?? '') == 'Academia' ? 'selected' : '' ?>>Academia</option>
-                                <option value="Salão de Beleza" <?= ($projeto['tipo_projeto'] ?? '') == 'Salão de Beleza' ? 'selected' : '' ?>>Salão de Beleza</option>
+                                <option value="Casa Comercial" <?= isSelected('Casa Comercial', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Comercial</option>
+                                <option value="Escritório" <?= isSelected('Escritório', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Escritório</option>
+                                <option value="Loja" <?= isSelected('Loja', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Loja</option>
+                                <option value="Consultório" <?= isSelected('Consultório', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Consultório</option>
+                                <option value="Clínica" <?= isSelected('Clínica', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Clínica</option>
+                                <option value="Restaurante" <?= isSelected('Restaurante', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Restaurante</option>
+                                <option value="Cafeteria" <?= isSelected('Cafeteria', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Cafeteria</option>
+                                <option value="Academia" <?= isSelected('Academia', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Academia</option>
+                                <option value="Salão de Beleza" <?= isSelected('Salão de Beleza', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Salão de Beleza</option>
                             </optgroup>
                             <optgroup label="Industrial">
-                                <option value="Galpão" <?= ($projeto['tipo_projeto'] ?? '') == 'Galpão' ? 'selected' : '' ?>>Galpão</option>
-                                <option value="Barracão" <?= ($projeto['tipo_projeto'] ?? '') == 'Barracão' ? 'selected' : '' ?>>Barracão</option>
-                                <option value="Oficina" <?= ($projeto['tipo_projeto'] ?? '') == 'Oficina' ? 'selected' : '' ?>>Oficina</option>
-                                <option value="Depósito" <?= ($projeto['tipo_projeto'] ?? '') == 'Depósito' ? 'selected' : '' ?>>Depósito</option>
-                                <option value="Armazém" <?= ($projeto['tipo_projeto'] ?? '') == 'Armazém' ? 'selected' : '' ?>>Armazém</option>
+                                <option value="Galpão" <?= isSelected('Galpão', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Galpão</option>
+                                <option value="Barracão" <?= isSelected('Barracão', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Barracão</option>
+                                <option value="Oficina" <?= isSelected('Oficina', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Oficina</option>
+                                <option value="Depósito" <?= isSelected('Depósito', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Depósito</option>
+                                <option value="Armazém" <?= isSelected('Armazém', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Armazém</option>
                             </optgroup>
-                            <option value="Outro" <?= ($projeto['tipo_projeto'] ?? '') == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                            <option value="Outro" <?= isSelected('Outro', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Outro</option>
                         </select>
                         <div class="invalid-feedback">Por favor, selecione o tipo de projeto.</div>
                         <small class="text-muted">Escolha a categoria que melhor descreve o projeto</small>
@@ -211,7 +215,7 @@ function isChecked($value, $current_value) {
                     <div class="col-12">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="destaque" id="destaque" value="1" 
-                                   <?= $projeto['destaque'] ? 'checked' : '' ?>>
+                                   <?= isChecked('1', getFieldValue('destaque', $form_data, $projeto)) ?>>
                             <label class="form-check-label fw-bold" for="destaque">
                                 <i class="bi bi-star-fill text-warning"></i> Projeto em Destaque
                             </label>
@@ -221,113 +225,107 @@ function isChecked($value, $current_value) {
                 </div>
             </div>
 
-            <!-- Seção 2: Dimensões do Terreno -->
+            <!-- Seção 2: Dimensões e Áreas -->
             <div class="form-section" data-section="2">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-rulers text-primary"></i> Dimensões do Terreno
+                    <i class="bi bi-rulers text-primary"></i> Dimensões e Áreas do Projeto
                 </h5>
                 
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-arrow-left-right"></i> Largura do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="largura_terreno" class="form-control" required 
                                value="<?= htmlspecialchars(getFieldValue('largura_terreno', $form_data, $projeto)) ?>"
                                placeholder="0.00" id="largura-terreno" onchange="calcularAreaTerreno()">
-                        <div class="invalid-feedback">Informe a largura do terreno em metros.</div>
-                        <small class="text-muted">Largura em metros</small>
+                        <div class="invalid-feedback">Informe a largura do terreno.</div>
+                        <small class="text-muted">Largura do terreno em metros</small>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-arrow-up-down"></i> Comprimento do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="comprimento_terreno" class="form-control" required 
                                value="<?= htmlspecialchars(getFieldValue('comprimento_terreno', $form_data, $projeto)) ?>"
                                placeholder="0.00" id="comprimento-terreno" onchange="calcularAreaTerreno()">
-                        <div class="invalid-feedback">Informe o comprimento do terreno em metros.</div>
-                        <small class="text-muted">Comprimento em metros</small>
+                        <div class="invalid-feedback">Informe o comprimento do terreno.</div>
+                        <small class="text-muted">Comprimento do terreno em metros</small>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-badge-ad"></i> Área do Terreno (m²) *
                         </label>
                         <input type="number" step="0.01" name="area_terreno" class="form-control" required readonly
-                               value="<?= $projeto['area_terreno'] ?? '' ?>"
+                               value="<?= htmlspecialchars(getFieldValue('area_terreno', $form_data, $projeto)) ?>"
                                placeholder="0.00" style="background-color: #f8f9fa;" id="area-terreno-display">
                         <div class="invalid-feedback">Área calculada automaticamente.</div>
                         <small class="text-muted">Calculado automaticamente</small>
                     </div>
-                </div>
-            </div>
-            <!-- Seção 3: Área Construída -->
-            <div class="form-section" data-section="3">
-                <hr class="section-divider">
-                <h5 class="section-title">
-                    <i class="bi bi-building text-primary"></i> Área Construída
-                </h5>
-                
-                <div class="row g-3">
-                    <div class="col-md-12">
+                    
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-building"></i> Área Construída (m²)
                         </label>
                         <input type="number" step="0.01" name="area_construida" class="form-control" readonly 
-                               value="<?= $projeto['area_construida'] ?? '' ?>"
+                               value="<?= htmlspecialchars(getFieldValue('area_construida', $form_data, $projeto)) ?>"
                                placeholder="0.00" style="background-color: #f8f9fa;" id="area-construida-display">
-                        <small class="text-muted">Soma automática das áreas dos andares</small>
+                        <!-- Campo hidden para enviar o valor calculado -->
+                        <input type="hidden" name="area_construida_calculated" id="area-construida-hidden"
+                               value="<?= htmlspecialchars(getFieldValue('area_construida', $form_data, $projeto)) ?>">
+                        <small class="text-muted">Soma automática dos andares</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Seção 4: Custos -->
-            <div class="form-section" data-section="4">
+            <!-- Seção 3: Valores e Custos -->
+            <div class="form-section" data-section="3">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-currency-dollar text-primary"></i> Custos do Projeto
+                    <i class="bi bi-currency-dollar text-primary"></i> Valores e Custos
                 </h5>
                 
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-currency-dollar"></i> Valor do Projeto (R$) *
+                            <i class="bi bi-cash-stack"></i> Valor do Projeto (R$)
                         </label>
-                        <input type="number" step="0.01" name="valor_projeto" class="form-control" required 
-                               value="<?= $projeto['valor_projeto'] ?>"
+                        <input type="number" step="0.01" name="valor_projeto" class="form-control" 
+                               value="<?= htmlspecialchars(getFieldValue('valor_projeto', $form_data, $projeto)) ?>"
                                placeholder="0.00">
-                        <div class="invalid-feedback">Informe o valor do projeto.</div>
+                        <small class="text-muted">Valor total do projeto</small>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-hammer"></i> Custo Mão de Obra (R$) *
+                            <i class="bi bi-tools"></i> Mão de Obra (R$)
                         </label>
-                        <input type="number" step="0.01" name="custo_mao_obra" class="form-control" required 
-                               value="<?= $projeto['custo_mao_obra'] ?>"
+                        <input type="number" step="0.01" name="custo_mao_obra" class="form-control" 
+                               value="<?= htmlspecialchars(getFieldValue('custo_mao_obra', $form_data, $projeto)) ?>"
                                placeholder="0.00">
-                        <div class="invalid-feedback">Informe o custo da mão de obra.</div>
+                        <small class="text-muted">Custo da mão de obra</small>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-box-seam"></i> Custo Materiais (R$) *
+                            <i class="bi bi-bricks"></i> Materiais (R$)
                         </label>
-                        <input type="number" step="0.01" name="custo_materiais" class="form-control" required 
-                               value="<?= $projeto['custo_materiais'] ?>"
+                        <input type="number" step="0.01" name="custo_materiais" class="form-control" 
+                               value="<?= htmlspecialchars(getFieldValue('custo_materiais', $form_data, $projeto)) ?>"
                                placeholder="0.00">
-                        <div class="invalid-feedback">Informe o custo dos materiais.</div>
+                        <small class="text-muted">Custo dos materiais</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Seção 5: Mídia -->
-            <div class="form-section" data-section="5">
+            <!-- Seção 4: Mídia e Documentação -->
+            <div class="form-section" data-section="4">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-camera text-primary"></i> Mídia do Projeto
+                    <i class="bi bi-camera text-primary"></i> Mídia e Documentação
                 </h5>
                 
                 <div class="row g-3">
@@ -336,7 +334,7 @@ function isChecked($value, $current_value) {
                             <i class="bi bi-youtube"></i> Vídeo do Projeto
                         </label>
                         <input type="url" name="video_url" class="form-control" 
-                               value="<?= htmlspecialchars($projeto['video_url']) ?>"
+                               value="<?= htmlspecialchars(getFieldValue('video_url', $form_data, $projeto)) ?>"
                                placeholder="https://www.youtube.com/watch?v=...">
                         <small class="text-muted">URL do YouTube (opcional)</small>
                     </div>
@@ -350,23 +348,60 @@ function isChecked($value, $current_value) {
                         <small class="text-muted">Deixe em branco para manter a imagem atual</small>
                     </div>
                     
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="fw-bold d-block mb-2">Imagem Atual:</label>
-                                <?php if ($projeto['capa_imagem']): ?>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-file-zip"></i> Novo Arquivo do Projeto (ZIP)
+                        </label>
+                        <input type="file" name="arquivo_projeto" accept=".zip" class="form-control"
+                               onchange="previewArquivo(this)">
+                        <small class="text-muted">Deixe em branco para manter o arquivo atual. Arquivo ZIP com plantas, documentos, etc. (opcional)</small>
+                        <div id="arquivo-info" class="mt-2" style="display: none;">
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="bi bi-file-zip me-2"></i>
+                                <span id="arquivo-nome"></span>
+                                <span id="arquivo-tamanho" class="ms-auto badge bg-secondary"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="fw-bold d-block mb-2">Arquivos Atuais:</label>
+                        
+                        <!-- Imagem Atual -->
+                        <div class="mb-3">
+                            <label class="fw-bold text-muted small">Imagem de Capa:</label>
+                            <?php if ($projeto['capa_imagem']): ?>
+                                <div class="border rounded p-2 bg-light">
                                     <img src="../../public/uploads/<?= htmlspecialchars($projeto['capa_imagem']) ?>" 
                                          alt="Imagem atual" 
-                                         style="max-width: 100%; max-height: 200px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                                <?php else: ?>
-                                    <div class="text-muted">Nenhuma imagem</div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="fw-bold d-block mb-2">Nova Imagem (Preview):</label>
-                                <img id="preview-imagem" src="" alt="Preview" 
-                                     style="max-width: 100%; max-height: 200px; display: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                            </div>
+                                         style="max-width: 100%; max-height: 120px; border-radius: 8px;">
+                                </div>
+                            <?php else: ?>
+                                <div class="text-muted small">Nenhuma imagem</div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Arquivo Atual -->
+                        <div>
+                            <label class="fw-bold text-muted small">Arquivo ZIP:</label>
+                            <?php if ($projeto['arquivo_projeto']): ?>
+                                <div class="d-flex align-items-center p-2 border rounded bg-light">
+                                    <i class="bi bi-file-earmark-zip text-primary me-2"></i>
+                                    <div class="small">
+                                        <div class="fw-bold"><?= htmlspecialchars($projeto['arquivo_projeto']) ?></div>
+                                        <div class="text-muted">Disponível para download após compra</div>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-muted small">Nenhum arquivo disponível</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="text-center mt-3">
+                            <img id="preview-imagem" src="" alt="Preview" 
+                                 style="max-width: 300px; max-height: 200px; display: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
                         </div>
                     </div>
                 </div>
@@ -478,10 +513,18 @@ function isChecked($value, $current_value) {
 
             <!-- Botões de Ação -->
             <hr class="section-divider">
-            <div class="d-flex gap-3 justify-content-end">
-                <a href="listar_projetos.php" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
+            <div class="d-flex gap-3 justify-content-between">
+                <div class="d-flex gap-2">
+                    <a href="../backend/limpar_formulario.php?redirect=../views/listar_projetos.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                    <a href="../backend/limpar_formulario.php?redirect=../views/editar_projeto.php?id=<?= $projeto['id'] ?>" class="btn btn-outline-warning">
+                        <i class="bi bi-eraser"></i> Limpar
+                    </a>
+                    <button type="button" class="btn btn-outline-info" onclick="limparFormularioRapido()">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                </div>
                 <button type="submit" class="btn btn-primary" id="salvar-btn">
                     <i class="bi bi-check-circle"></i> Salvar Alterações
                 </button>
@@ -519,6 +562,26 @@ function previewImagem(input) {
         reader.readAsDataURL(input.files[0]);
     } else {
         preview.style.display = 'none';
+    }
+    
+    updateProgress();
+}
+
+// Função para preview do arquivo ZIP
+function previewArquivo(input) {
+    const arquivoInfo = document.getElementById('arquivo-info');
+    const arquivoNome = document.getElementById('arquivo-nome');
+    const arquivoTamanho = document.getElementById('arquivo-tamanho');
+    
+    if (input.files && input.files[0]) {
+        const arquivo = input.files[0];
+        const tamanhoMB = (arquivo.size / (1024 * 1024)).toFixed(2);
+        
+        arquivoNome.textContent = arquivo.name;
+        arquivoTamanho.textContent = tamanhoMB + ' MB';
+        arquivoInfo.style.display = 'block';
+    } else {
+        arquivoInfo.style.display = 'none';
     }
     
     updateProgress();
@@ -654,8 +717,14 @@ function calcularAreaConstruida() {
     });
     
     const areaDisplay = document.getElementById('area-construida-display');
+    const areaHidden = document.getElementById('area-construida-hidden');
+    
     if (areaDisplay) {
         areaDisplay.value = totalArea.toFixed(2);
+    }
+    
+    if (areaHidden) {
+        areaHidden.value = totalArea.toFixed(2);
     }
 }
 
@@ -691,6 +760,10 @@ function updateProgress() {
 
 // Event listeners para atualizar o progresso
 document.addEventListener('DOMContentLoaded', function() {
+    // Calcula valores iniciais
+    calcularAreaTerreno();
+    calcularAreaConstruida();
+    
     // Atualiza progresso inicial
     updateProgress();
     
@@ -725,6 +798,64 @@ document.addEventListener('DOMContentLoaded', function() {
         
         this.classList.add('was-validated');
     });
+    
+    // Função para limpar formulário rapidamente (sem recarregar página)
+    window.limparFormularioRapido = function() {
+        if (confirm('Tem certeza que deseja limpar todos os campos editáveis do formulário?\\nOs dados originais do projeto serão mantidos após recarregar a página.')) {
+            const form = document.getElementById('projeto-form');
+            
+            // Limpa apenas campos editáveis, mantendo IDs e dados originais
+            form.querySelectorAll('input:not([type="hidden"]):not([readonly]), textarea, select').forEach(field => {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else if (field.type === 'file') {
+                    field.value = '';
+                } else if (!field.hasAttribute('readonly')) {
+                    field.value = '';
+                }
+            });
+            
+            // Limpa preview de imagem
+            const preview = document.getElementById('preview-imagem');
+            if (preview) {
+                preview.style.display = 'none';
+                preview.src = '';
+            }
+            
+            // Limpa info do arquivo
+            const arquivoInfo = document.getElementById('arquivo-info');
+            if (arquivoInfo) {
+                arquivoInfo.style.display = 'none';
+            }
+            
+            // Reseta campos calculados
+            calcularAreaTerreno();
+            calcularAreaConstruida();
+            
+            // Atualiza progresso
+            updateProgress();
+            
+            // Remove classe de validação
+            form.classList.remove('was-validated');
+            
+            // Mostra notificação de sucesso
+            const alertHtml = `
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi bi-info-circle"></i> Campos editáveis limpos! Recarregue a página para restaurar os dados originais.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.querySelector('.admin-card-body').insertAdjacentHTML('afterbegin', alertHtml);
+            
+            // Remove o alerta automaticamente após 5 segundos
+            setTimeout(() => {
+                const alert = document.querySelector('.alert-info');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    };
 });
 </script>
 
