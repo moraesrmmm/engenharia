@@ -52,11 +52,11 @@ CREATE TABLE configuracoes_mp (
 
 -- Inserir configurações padrão do Mercado Pago
 INSERT INTO configuracoes_mp (chave, valor, descricao) VALUES
-('mp_public_key', '', 'Chave pública do Mercado Pago'),
-('mp_access_token', '', 'Token de acesso do Mercado Pago'),
-('mp_webhook_url', '', 'https://damonengenharia.free.nf/public/api/webhook_mercadopago.php'),
-('mp_success_url', '', 'https://damonengenharia.free.nf/public/api/pagamento_sucesso.php'),
-('mp_failure_url', '', 'https://damonengenharia.free.nf/public/api/pagamento_falha.php'),
-('mp_pending_url', '', 'https://damonengenharia.free.nf/public/api/pagamento_pendente.php'),
+('mp_public_key', 'APP_USR-9784e097-6b3c-4f1a-8f88-29857b922799', 'Chave pública do Mercado Pago'),
+('mp_access_token', 'APP_USR-6712424600827825-062814-fe3172b5cf2055e635f47317b941d810-1350257138', 'Token de acesso do Mercado Pago'),
+('mp_webhook_url', 'https://damonengenharia.free.nf/public/api/webhook_mercadopago.php', 'URL do webhook para notificações'),
+('mp_success_url', 'https://damonengenharia.free.nf/public/api/pagamento_sucesso.php', 'URL de retorno para pagamento aprovado'),
+('mp_failure_url', 'https://damonengenharia.free.nf/public/api/pagamento_falha.php', 'URL de retorno para pagamento rejeitado'),
+('mp_pending_url', 'https://damonengenharia.free.nf/public/api/pagamento_pendente.php', 'URL de retorno para pagamento pendente'),
 ('email_remetente', 'romulo_moraes2018@hotmail.com', 'Email remetente para envio dos arquivos'),
 ('email_nome_remetente', 'Projetos de Engenharia', 'Nome do remetente dos emails');

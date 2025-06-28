@@ -36,12 +36,12 @@ if (!empty($filtros['quartos'])) {
 }
 
 if (!empty($filtros['preco_min'])) {
-    $where_conditions[] = "p.preco_total >= ?";
+    $where_conditions[] = "p.valor_projeto >= ?";
     $params[] = (float)$filtros['preco_min'];
 }
 
 if (!empty($filtros['preco_max'])) {
-    $where_conditions[] = "p.preco_total <= ?";
+    $where_conditions[] = "p.valor_projeto <= ?";
     $params[] = (float)$filtros['preco_max'];
 }
 
@@ -84,8 +84,8 @@ $stats_stmt = $pdo->query("
     SELECT 
         COUNT(*) as total_projetos,
         COUNT(CASE WHEN destaque = TRUE THEN 1 END) as total_destaques,
-        COALESCE(AVG(preco_total), 0) as preco_medio,
-        COALESCE(AVG(area), 0) as area_media
+        COALESCE(AVG(valor_projeto), 0) as preco_medio,
+        COALESCE(AVG(area_terreno), 0) as area_media
     FROM projetos 
     WHERE ativo = TRUE
 ");
@@ -331,13 +331,15 @@ $stats = $stats_stmt->fetch();
                                 </p>
 
                                 <div class="project-meta">
-                                    <div class="meta-item">
-                                        <i class="bi bi-rulers meta-icon"></i>
-                                        <?= $projeto['largura_comprimento'] ?>
-                                    </div>
+                                    <?php if ($projeto['largura_terreno'] && $projeto['comprimento_terreno']): ?>
+                                        <div class="meta-item">
+                                            <i class="bi bi-rulers meta-icon"></i>
+                                            <?= $projeto['largura_terreno'] ?>m × <?= $projeto['comprimento_terreno'] ?>m
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="meta-item">
                                         <i class="bi bi-bounding-box meta-icon"></i>
-                                        <?= number_format($projeto['area'], 2, ',', '.') ?>m²
+                                        <?= number_format($projeto['area_terreno'], 2, ',', '.') ?>m²
                                     </div>
                                     <div class="meta-item">
                                         <i class="bi bi-door-open meta-icon"></i>
@@ -349,10 +351,10 @@ $stats = $stats_stmt->fetch();
                                     </div>
                                 </div>
 
-                                <?php if ($projeto['preco_total']): ?>
+                                <?php if ($projeto['valor_projeto']): ?>
                                     <div class="project-price">
                                         <i class="bi bi-currency-dollar"></i>
-                                        R$ <?= number_format($projeto['preco_total'], 2, ',', '.') ?>
+                                        R$ <?= number_format($projeto['valor_projeto'], 2, ',', '.') ?>
                                     </div>
                                 <?php endif; ?>
                             </div>

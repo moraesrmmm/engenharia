@@ -88,6 +88,20 @@ $projetos_destaque = $pdo->query("SELECT COUNT(*) FROM projetos WHERE ativo = TR
                             <small>Gerenciar projetos</small>
                         </a>
                     </div>
+                    <div class="col-md-6">
+                        <a href="views/vendas.php" class="btn btn-success w-100 py-3">
+                            <i class="bi bi-cart-check fs-4"></i><br>
+                            <strong>Vendas</strong><br>
+                            <small>Gerenciar vendas online</small>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="../public/index.php" target="_blank" class="btn btn-outline-info w-100 py-3">
+                            <i class="bi bi-globe fs-4"></i><br>
+                            <strong>Ver Site</strong><br>
+                            <small>Visualizar site público</small>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
