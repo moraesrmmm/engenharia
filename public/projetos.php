@@ -3,34 +3,44 @@ require_once '../config/config.php';
 require_once '../includes/funcoes.php';
 require_once '../includes/header.php';
 
-// Parâmetros de filtro
+// Parâmetros de filtro com validações
 $filtros = [
-    'search' => $_GET['search'] ?? '',
-    'quartos' => $_GET['quartos'] ?? '',
-    'tipo_projeto' => $_GET['tipo_projeto'] ?? '',
-    'preco_min' => $_GET['preco_min'] ?? '',
-    'preco_max' => $_GET['preco_max'] ?? '',
-    'largura_terreno' => $_GET['largura_terreno'] ?? '',
-    'destaque' => $_GET['destaque'] ?? ''
+    'search' => isset($_GET['search']) ? trim($_GET['search']) : '',
+    'quartos' => isset($_GET['quartos']) && is_numeric($_GET['quartos']) ? $_GET['quartos'] : '',
+    'tipo_projeto' => isset($_GET['tipo_projeto']) ? trim($_GET['tipo_projeto']) : '',
+    'preco_min' => isset($_GET['preco_min']) && is_numeric($_GET['preco_min']) ? (float)$_GET['preco_min'] : '',
+    'preco_max' => isset($_GET['preco_max']) && is_numeric($_GET['preco_max']) ? (float)$_GET['preco_max'] : '',
+    'largura_terreno' => isset($_GET['largura_terreno']) && is_numeric($_GET['largura_terreno']) ? (float)$_GET['largura_terreno'] : '',
+    'destaque' => isset($_GET['destaque']) && in_array($_GET['destaque'], ['0', '1']) ? $_GET['destaque'] : ''
 ];
 
-// Buscar larguras de terreno disponíveis
-$larguras_stmt = $pdo->query("
-    SELECT DISTINCT largura_terreno 
-    FROM projetos 
-    WHERE ativo = TRUE AND largura_terreno > 0 
-    ORDER BY largura_terreno ASC
-");
-$larguras_disponiveis = $larguras_stmt->fetchAll(PDO::FETCH_COLUMN);
+// Buscar larguras de terreno disponíveis com validação
+try {
+    $larguras_stmt = $pdo->query("
+        SELECT DISTINCT largura_terreno 
+        FROM projetos 
+        WHERE ativo = TRUE AND largura_terreno > 0 AND largura_terreno IS NOT NULL
+        ORDER BY largura_terreno ASC
+    ");
+    $larguras_disponiveis = $larguras_stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+} catch (PDOException $e) {
+    error_log("Erro ao buscar larguras: " . $e->getMessage());
+    $larguras_disponiveis = [];
+}
 
-// Buscar tipos de projeto disponíveis
-$tipos_stmt = $pdo->query("
-    SELECT DISTINCT tipo_projeto 
-    FROM projetos 
-    WHERE ativo = TRUE AND tipo_projeto IS NOT NULL 
-    ORDER BY tipo_projeto ASC
-");
-$tipos_disponiveis = $tipos_stmt->fetchAll(PDO::FETCH_COLUMN);
+// Buscar tipos de projeto disponíveis com validação
+try {
+    $tipos_stmt = $pdo->query("
+        SELECT DISTINCT tipo_projeto 
+        FROM projetos 
+        WHERE ativo = TRUE AND tipo_projeto IS NOT NULL AND tipo_projeto != ''
+        ORDER BY tipo_projeto ASC
+    ");
+    $tipos_disponiveis = $tipos_stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+} catch (PDOException $e) {
+    error_log("Erro ao buscar tipos: " . $e->getMessage());
+    $tipos_disponiveis = [];
+}
 
 // Construir query dinâmica
 $where_conditions = ["p.ativo = TRUE"];
@@ -43,41 +53,49 @@ if (!empty($filtros['search'])) {
     $params[] = $search_term;
 }
 
-if (!empty($filtros['quartos'])) {
-    if ($filtros['quartos'] == '4') {
+if (!empty($filtros['quartos']) && is_numeric($filtros['quartos'])) {
+    $num_quartos = (int)$filtros['quartos'];
+    
+    if ($num_quartos >= 4) {
         $where_conditions[] = "(
-            SELECT COUNT(*) 
-            FROM (
-                SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-                UNION ALL
-                SELECT 1 FROM comodos c 
+            COALESCE((
+                SELECT COUNT(*) 
+                FROM comodos c 
+                WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+            ), 0) +
+            COALESCE((
+                SELECT COUNT(*) 
+                FROM comodos c 
                 INNER JOIN andares a ON c.andar_id = a.id 
                 WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-            ) AS quartos_total
+            ), 0)
         ) >= 4";
     } else {
         $where_conditions[] = "(
-            SELECT COUNT(*) 
-            FROM (
-                SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-                UNION ALL
-                SELECT 1 FROM comodos c 
+            COALESCE((
+                SELECT COUNT(*) 
+                FROM comodos c 
+                WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+            ), 0) +
+            COALESCE((
+                SELECT COUNT(*) 
+                FROM comodos c 
                 INNER JOIN andares a ON c.andar_id = a.id 
                 WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-            ) AS quartos_total
+            ), 0)
         ) = ?";
-        $params[] = (int)$filtros['quartos'];
+        $params[] = $num_quartos;
     }
 }
 
-if (!empty($filtros['preco_min'])) {
+if (!empty($filtros['preco_min']) && $filtros['preco_min'] > 0) {
     $where_conditions[] = "p.valor_projeto >= ?";
-    $params[] = (float)$filtros['preco_min'];
+    $params[] = $filtros['preco_min'];
 }
 
-if (!empty($filtros['preco_max'])) {
+if (!empty($filtros['preco_max']) && $filtros['preco_max'] > 0) {
     $where_conditions[] = "p.valor_projeto <= ?";
-    $params[] = (float)$filtros['preco_max'];
+    $params[] = $filtros['preco_max'];
 }
 
 if (!empty($filtros['tipo_projeto'])) {
@@ -85,9 +103,9 @@ if (!empty($filtros['tipo_projeto'])) {
     $params[] = $filtros['tipo_projeto'];
 }
 
-if (!empty($filtros['largura_terreno'])) {
+if (!empty($filtros['largura_terreno']) && $filtros['largura_terreno'] > 0) {
     $where_conditions[] = "p.largura_terreno = ?";
-    $params[] = (float)$filtros['largura_terreno'];
+    $params[] = $filtros['largura_terreno'];
 }
 
 if ($filtros['destaque'] === '1') {
@@ -96,55 +114,102 @@ if ($filtros['destaque'] === '1') {
 
 $where_clause = implode(' AND ', $where_conditions);
 
-// Buscar projetos com filtros
+// Buscar projetos com filtros (com validações para evitar erros)
 $sql = "
     SELECT 
         p.*,
 
-        (
+        COALESCE((
             SELECT COUNT(*) 
             FROM comodos c 
             WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-        ) +
-        (
+        ), 0) +
+        COALESCE((
             SELECT COUNT(*) 
             FROM comodos c
             INNER JOIN andares a ON c.andar_id = a.id 
             WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-        ) AS quartos,
+        ), 0) AS quartos,
 
-        (
+        COALESCE((
             SELECT COUNT(*) 
             FROM comodos c 
             WHERE c.projeto_id = p.id
-        ) +
-        (
+        ), 0) +
+        COALESCE((
             SELECT COUNT(*) 
             FROM comodos c
             INNER JOIN andares a ON c.andar_id = a.id 
             WHERE a.projeto_id = p.id
-        ) AS total_comodos
+        ), 0) AS total_comodos
 
     FROM projetos p 
     WHERE {$where_clause}
     ORDER BY p.destaque DESC, p.criado_em DESC
 ";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$projetos = $stmt->fetchAll();
+// Executar query com tratamento de erro
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $projetos = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log("Erro ao buscar projetos: " . $e->getMessage());
+    error_log("SQL: " . $sql);
+    error_log("Params: " . print_r($params, true));
+    $projetos = [];
+}
 
-// Estatísticas gerais
-$stats_stmt = $pdo->query("
-    SELECT 
-        COUNT(*) as total_projetos,
-        COUNT(CASE WHEN destaque = TRUE THEN 1 END) as total_destaques,
-        COALESCE(AVG(valor_projeto), 0) as preco_medio,
-        COALESCE(AVG(area_terreno), 0) as area_media
-    FROM projetos 
-    WHERE ativo = TRUE
-");
-$stats = $stats_stmt->fetch();
+// Estatísticas gerais com tratamento de erro
+try {
+    $stats_stmt = $pdo->query("
+        SELECT 
+            COUNT(*) as total_projetos,
+            COUNT(CASE WHEN destaque = TRUE THEN 1 END) as total_destaques,
+            COALESCE(AVG(NULLIF(valor_projeto, 0)), 0) as preco_medio,
+            COALESCE(AVG(NULLIF(area_terreno, 0)), 0) as area_media
+        FROM projetos 
+        WHERE ativo = TRUE
+    ");
+    $stats = $stats_stmt->fetch();
+    
+    // Garantir que os valores sejam válidos
+    $stats = [
+        'total_projetos' => (int)($stats['total_projetos'] ?? 0),
+        'total_destaques' => (int)($stats['total_destaques'] ?? 0),
+        'preco_medio' => (float)($stats['preco_medio'] ?? 0),
+        'area_media' => (float)($stats['area_media'] ?? 0)
+    ];
+} catch (PDOException $e) {
+    error_log("Erro ao buscar estatísticas: " . $e->getMessage());
+    $stats = [
+        'total_projetos' => 0,
+        'total_destaques' => 0,
+        'preco_medio' => 0,
+        'area_media' => 0
+    ];
+}
+
+// Verificar se existem projetos com quartos para mostrar o filtro
+try {
+    $quartos_existem_stmt = $pdo->query("
+        SELECT COUNT(*) as tem_quartos
+        FROM projetos p
+        WHERE p.ativo = TRUE 
+        AND (
+            EXISTS(SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte'))
+            OR EXISTS(
+                SELECT 1 FROM comodos c 
+                INNER JOIN andares a ON c.andar_id = a.id 
+                WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+            )
+        )
+    ");
+    $tem_quartos = $quartos_existem_stmt->fetch()['tem_quartos'] > 0;
+} catch (PDOException $e) {
+    error_log("Erro ao verificar quartos: " . $e->getMessage());
+    $tem_quartos = false;
+}
 
 // Função para gerar URL com filtros
 function gerarUrlFiltro($filtro, $valor) {
@@ -198,7 +263,8 @@ function gerarUrlFiltro($filtro, $valor) {
                     <i class="bi bi-search public-search-icon"></i>
                 </div>
 
-                <!-- Filtros por Quartos -->
+                <!-- Filtros por Quartos (apenas se existirem quartos) -->
+                <?php if ($tem_quartos): ?>
                 <div class="text-center mb-4">
                     <h5 class="mb-3">
                         <i class="bi bi-door-open"></i> Filtrar por Número de Quartos
@@ -226,6 +292,7 @@ function gerarUrlFiltro($filtro, $valor) {
                         </a>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Filtros Avançados -->
                 <div class="row g-3">
@@ -393,11 +460,11 @@ function gerarUrlFiltro($filtro, $valor) {
                                     </div>
                                     <div class="public-meta-item">
                                         <i class="bi bi-door-open public-meta-icon"></i>
-                                        <?= $projeto['quartos'] ?> quarto(s)
+                                        <?= max(0, (int)$projeto['quartos']) ?> quarto(s)
                                     </div>
                                     <div class="public-meta-item">
                                         <i class="bi bi-house-door public-meta-icon"></i>
-                                        <?= $projeto['total_comodos'] ?> cômodos
+                                        <?= max(0, (int)$projeto['total_comodos']) ?> cômodos
                                     </div>
                                 </div>
 
@@ -444,10 +511,16 @@ function gerarUrlFiltro($filtro, $valor) {
             });
         }
 
-        // Auto-submit para campos numéricos e selects
+        // Auto-submit para campos numéricos e selects com validação
         const numericInputs = document.querySelectorAll('input[type="number"]');
         numericInputs.forEach(input => {
             input.addEventListener('change', function() {
+                // Validar se o valor é positivo
+                if (this.value !== '' && parseFloat(this.value) < 0) {
+                    this.value = '';
+                    return;
+                }
+                
                 setTimeout(() => {
                     document.getElementById('filtrosForm').submit();
                 }, 300);
