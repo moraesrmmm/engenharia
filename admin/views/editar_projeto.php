@@ -1,5 +1,4 @@
 <?php 
-session_start();
 require_once '../auth.php';
 require_once '../../config/config.php';
 
@@ -24,10 +23,17 @@ try {
         exit;
     }
     
-    // Busca os cômodos do projeto
-    $stmt_comodos = $pdo->prepare("SELECT * FROM comodos WHERE projeto_id = ? AND ativo = TRUE ORDER BY id");
-    $stmt_comodos->execute([$projeto_id]);
-    $comodos = $stmt_comodos->fetchAll(PDO::FETCH_ASSOC);
+    // Busca os andares do projeto
+    $stmt_andares = $pdo->prepare("SELECT * FROM andares WHERE projeto_id = ? AND ativo = TRUE ORDER BY ordem, id");
+    $stmt_andares->execute([$projeto_id]);
+    $andares = $stmt_andares->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Busca os cômodos para cada andar
+    foreach ($andares as &$andar) {
+        $stmt_comodos = $pdo->prepare("SELECT * FROM comodos WHERE projeto_id = ? AND andar_id = ? AND ativo = TRUE ORDER BY id");
+        $stmt_comodos->execute([$projeto_id, $andar['id']]);
+        $andar['comodos'] = $stmt_comodos->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 } catch (Exception $e) {
     $_SESSION['error_message'] = 'Erro ao carregar projeto: ' . $e->getMessage();
@@ -348,80 +354,104 @@ require_once '../includes/header.php';
             <div class="form-section" data-section="6">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-house-door text-primary"></i> Cômodos do Projeto
+                    <i class="bi bi-building text-primary"></i> Andares do Projeto
                 </h5>
                 
-                <div id="comodos-container">
-                    <?php foreach ($comodos as $index => $comodo): ?>
-                        <div class="comodo-item border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                <div id="andares-container">
+                    <?php foreach ($andares as $andar_index => $andar): ?>
+                        <div class="andar-item border rounded-3 p-4 mb-4" style="background-color: #f8f9fa;" data-andar-index="<?= $andar_index ?>">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0"><i class="bi bi-door-open"></i> Cômodo <?= $index + 1 ?></h6>
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removerComodo(this)">
-                                    <i class="bi bi-trash"></i> Remover
+                                <h6 class="mb-0 text-primary"><i class="bi bi-layers-fill"></i> <?= htmlspecialchars($andar['nome']) ?: 'Andar ' . ($andar_index + 1) ?></h6>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerAndar(this)">
+                                    <i class="bi bi-trash"></i> Remover Andar
                                 </button>
                             </div>
                             
-                            <input type="hidden" name="comodos[<?= $index ?>][id]" value="<?= $comodo['id'] ?>">
+                            <input type="hidden" name="andares[<?= $andar_index ?>][id]" value="<?= $andar['id'] ?>">
                             
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-bold">Tipo</label>
-                                    <select name="comodos[<?= $index ?>][tipo]" class="form-select" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="Quarto" <?= $comodo['tipo'] == 'Quarto' ? 'selected' : '' ?>>Quarto</option>
-                                        <option value="Sala" <?= $comodo['tipo'] == 'Sala' ? 'selected' : '' ?>>Sala</option>
-                                        <option value="Cozinha" <?= $comodo['tipo'] == 'Cozinha' ? 'selected' : '' ?>>Cozinha</option>
-                                        <option value="Banheiro" <?= $comodo['tipo'] == 'Banheiro' ? 'selected' : '' ?>>Banheiro</option>
-                                        <option value="Garagem" <?= $comodo['tipo'] == 'Garagem' ? 'selected' : '' ?>>Garagem</option>
-                                        <option value="Área Gourmet" <?= $comodo['tipo'] == 'Área Gourmet' ? 'selected' : '' ?>>Área Gourmet</option>
-                                        <option value="Área de Serviço" <?= $comodo['tipo'] == 'Área de Serviço' ? 'selected' : '' ?>>Área de Serviço</option>
-                                        <option value="Escritório" <?= $comodo['tipo'] == 'Escritório' ? 'selected' : '' ?>>Escritório</option>
-                                        <option value="Varanda" <?= $comodo['tipo'] == 'Varanda' ? 'selected' : '' ?>>Varanda</option>
-                                        <option value="Closet" <?= $comodo['tipo'] == 'Closet' ? 'selected' : '' ?>>Closet</option>
-                                    </select>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nome do Andar:</label>
+                                    <input type="text" name="andares[<?= $andar_index ?>][nome]" class="form-control" 
+                                           value="<?= htmlspecialchars($andar['nome']) ?>"
+                                           placeholder="Ex: Térreo, Primeiro Andar, Segundo Andar">
                                 </div>
-                                
-                                <div class="col-md-3">
-                                    <label class="form-label fw-bold">Nome</label>
-                                    <input type="text" name="comodos[<?= $index ?>][nome]" class="form-control" 
-                                           value="<?= htmlspecialchars($comodo['nome']) ?>"
-                                           placeholder="Ex: Quarto Casal">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Área do Andar (m²) *:</label>
+                                    <input type="number" step="0.01" name="andares[<?= $andar_index ?>][area]" class="form-control" 
+                                           value="<?= $andar['area'] ?>"
+                                           placeholder="0.00" required onchange="updateProgress(); calcularAreaConstruida()">
+                                    <div class="invalid-feedback">Informe a área do andar.</div>
                                 </div>
-                                
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold">Largura (m)</label>
-                                    <input type="number" step="0.01" name="comodos[<?= $index ?>][largura]" class="form-control" 
-                                           value="<?= $comodo['largura'] ?>"
-                                           placeholder="0.00">
+                            </div>
+                            
+                            <div class="border-top pt-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0"><i class="bi bi-door-open text-success"></i> Cômodos deste Andar</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-success mb-2" onclick="adicionarComodo(<?= $andar_index ?>)">
+                                        <i class="bi bi-plus-circle"></i> Adicionar Cômodo
+                                    </button>
                                 </div>
-                                
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold">Comprimento (m)</label>
-                                    <input type="number" step="0.01" name="comodos[<?= $index ?>][comprimento]" class="form-control" 
-                                           value="<?= $comodo['comprimento'] ?>"
-                                           placeholder="0.00">
-                                </div>
-                                
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold">Área (m²)</label>
-                                    <input type="number" step="0.01" name="comodos[<?= $index ?>][area]" class="form-control" 
-                                           value="<?= number_format($comodo['largura'] * $comodo['comprimento'], 2, '.', '') ?>"
-                                           readonly style="background-color: #e9ecef;">
-                                </div>
-                                
-                                <div class="col-12">
-                                    <label class="form-label fw-bold">Observações</label>
-                                    <textarea name="comodos[<?= $index ?>][observacoes]" class="form-control" rows="2" 
-                                              placeholder="Observações sobre o cômodo..."><?= htmlspecialchars($comodo['observacoes']) ?></textarea>
+                                <div id="comodos-andar-<?= $andar_index ?>" class="comodos-container">
+                                    <?php foreach ($andar['comodos'] as $comodo_index => $comodo): ?>
+                                        <div class="comodo-item row g-3 align-items-end p-3 mb-3 border rounded" style="background-color: #ffffff;">
+                                            <input type="hidden" name="andares[<?= $andar_index ?>][comodos][<?= $comodo_index ?>][id]" value="<?= $comodo['id'] ?>">
+                                            
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-bold">Tipo *:</label>
+                                                <select name="andares[<?= $andar_index ?>][comodos][<?= $comodo_index ?>][tipo]" class="form-select" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="Quarto" <?= $comodo['tipo'] == 'Quarto' ? 'selected' : '' ?>>Quarto</option>
+                                                    <option value="Suíte" <?= $comodo['tipo'] == 'Suíte' ? 'selected' : '' ?>>Suíte</option>
+                                                    <option value="Sala de Estar" <?= $comodo['tipo'] == 'Sala de Estar' ? 'selected' : '' ?>>Sala de Estar</option>
+                                                    <option value="Sala de Jantar" <?= $comodo['tipo'] == 'Sala de Jantar' ? 'selected' : '' ?>>Sala de Jantar</option>
+                                                    <option value="Cozinha" <?= $comodo['tipo'] == 'Cozinha' ? 'selected' : '' ?>>Cozinha</option>
+                                                    <option value="Banheiro" <?= $comodo['tipo'] == 'Banheiro' ? 'selected' : '' ?>>Banheiro</option>
+                                                    <option value="Lavanderia" <?= $comodo['tipo'] == 'Lavanderia' ? 'selected' : '' ?>>Lavanderia</option>
+                                                    <option value="Closet" <?= $comodo['tipo'] == 'Closet' ? 'selected' : '' ?>>Closet</option>
+                                                    <option value="Área Gourmet" <?= $comodo['tipo'] == 'Área Gourmet' ? 'selected' : '' ?>>Área Gourmet</option>
+                                                    <option value="Jardim" <?= $comodo['tipo'] == 'Jardim' ? 'selected' : '' ?>>Jardim</option>
+                                                    <option value="Garagem" <?= $comodo['tipo'] == 'Garagem' ? 'selected' : '' ?>>Garagem</option>
+                                                    <option value="Churrasqueira" <?= $comodo['tipo'] == 'Churrasqueira' ? 'selected' : '' ?>>Churrasqueira</option>
+                                                    <option value="Varanda" <?= $comodo['tipo'] == 'Varanda' ? 'selected' : '' ?>>Varanda</option>
+                                                    <option value="Edícula" <?= $comodo['tipo'] == 'Edícula' ? 'selected' : '' ?>>Edícula</option>
+                                                    <option value="Escritório" <?= $comodo['tipo'] == 'Escritório' ? 'selected' : '' ?>>Escritório</option>
+                                                    <option value="Despensa" <?= $comodo['tipo'] == 'Despensa' ? 'selected' : '' ?>>Despensa</option>
+                                                    <option value="Hall" <?= $comodo['tipo'] == 'Hall' ? 'selected' : '' ?>>Hall</option>
+                                                    <option value="Corredor" <?= $comodo['tipo'] == 'Corredor' ? 'selected' : '' ?>>Corredor</option>
+                                                </select>
+                                                <div class="invalid-feedback">Selecione o tipo do cômodo.</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-bold">Nome:</label>
+                                                <input type="text" name="andares[<?= $andar_index ?>][comodos][<?= $comodo_index ?>][nome]" class="form-control" 
+                                                       value="<?= htmlspecialchars($comodo['nome']) ?>"
+                                                       placeholder="Ex: Quarto do Casal">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-bold">Observações:</label>
+                                                <input type="text" name="andares[<?= $andar_index ?>][comodos][<?= $comodo_index ?>][observacoes]" class="form-control" 
+                                                       value="<?= htmlspecialchars($comodo['observacoes'] ?? '') ?>"
+                                                       placeholder="Detalhes específicos do cômodo...">
+                                            </div>
+                                            <div class="col-md-2 text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerComodo(this)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 
-                <button type="button" class="btn btn-outline-primary" onclick="adicionarComodo()">
-                    <i class="bi bi-plus-circle"></i> Adicionar Cômodo
-                </button>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-primary" onclick="adicionarAndar()">
+                        <i class="bi bi-plus-circle"></i> Adicionar Andar
+                    </button>
+                </div>
             </div>
 
             <!-- Botões de Ação -->
@@ -439,7 +469,8 @@ require_once '../includes/header.php';
 </div>
 
 <script>
-let comodoIndex = <?= count($comodos) ?>;
+let andaresCount = <?= count($andares) ?>;
+let comodosCount = 0;
 
 // Função para calcular área do terreno automaticamente
 function calcularAreaTerreno() {
@@ -471,104 +502,139 @@ function previewImagem(input) {
     updateProgress();
 }
 
-// Função para adicionar novo cômodo
-function adicionarComodo() {
-    const container = document.getElementById('comodos-container');
+function adicionarAndar() {
+    const container = document.getElementById('andares-container');
+    const andarIndex = andaresCount++;
+
+    const div = document.createElement('div');
+    div.className = 'andar-item border rounded-3 p-4 mb-4';
+    div.style.backgroundColor = '#f8f9fa';
+    div.setAttribute('data-andar-index', andarIndex);
     
-    const comodoHtml = `
-        <div class="comodo-item border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+    div.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 text-primary"><i class="bi bi-layers-fill"></i> Andar ${andarIndex + 1}</h6>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerAndar(this)">
+                <i class="bi bi-trash"></i> Remover Andar
+            </button>
+        </div>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Nome do Andar:</label>
+                <input type="text" name="andares[${andarIndex}][nome]" class="form-control" 
+                       placeholder="Ex: Térreo, Primeiro Andar, Segundo Andar">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Área do Andar (m²) *:</label>
+                <input type="number" step="0.01" name="andares[${andarIndex}][area]" class="form-control" 
+                       placeholder="0.00" required onchange="updateProgress(); calcularAreaConstruida()">
+                <div class="invalid-feedback">Informe a área do andar.</div>
+            </div>
+        </div>
+        
+        <div class="border-top pt-3">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0"><i class="bi bi-door-open"></i> Cômodo ${comodoIndex + 1}</h6>
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removerComodo(this)">
-                    <i class="bi bi-trash"></i> Remover
+                <h6 class="mb-0"><i class="bi bi-door-open text-success"></i> Cômodos deste Andar</h6>
+                <button type="button" class="btn btn-sm btn-outline-success mb-2" onclick="adicionarComodo(${andarIndex})">
+                    <i class="bi bi-plus-circle"></i> Adicionar Cômodo
                 </button>
             </div>
-            
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Tipo</label>
-                    <select name="comodos[${comodoIndex}][tipo]" class="form-select" required>
-                        <option value="">Selecione...</option>
-                        <option value="Quarto">Quarto</option>
-                        <option value="Sala">Sala</option>
-                        <option value="Cozinha">Cozinha</option>
-                        <option value="Banheiro">Banheiro</option>
-                        <option value="Garagem">Garagem</option>
-                        <option value="Área Gourmet">Área Gourmet</option>
-                        <option value="Área de Serviço">Área de Serviço</option>
-                        <option value="Escritório">Escritório</option>
-                        <option value="Varanda">Varanda</option>
-                        <option value="Closet">Closet</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Nome</label>
-                    <input type="text" name="comodos[${comodoIndex}][nome]" class="form-control" 
-                           placeholder="Ex: Quarto Casal">
-                </div>
-                
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Largura (m)</label>
-                    <input type="number" step="0.01" name="comodos[${comodoIndex}][largura]" class="form-control" 
-                           placeholder="0.00" onchange="calcularAreaComodo(this)">
-                </div>
-                
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Comprimento (m)</label>
-                    <input type="number" step="0.01" name="comodos[${comodoIndex}][comprimento]" class="form-control" 
-                           placeholder="0.00" onchange="calcularAreaComodo(this)">
-                </div>
-                
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Área (m²)</label>
-                    <input type="number" step="0.01" name="comodos[${comodoIndex}][area]" class="form-control" 
-                           readonly style="background-color: #e9ecef;">
-                </div>
-                
-                <div class="col-12">
-                    <label class="form-label fw-bold">Observações</label>
-                    <textarea name="comodos[${comodoIndex}][observacoes]" class="form-control" rows="2" 
-                              placeholder="Observações sobre o cômodo..."></textarea>
-                </div>
+            <div id="comodos-andar-${andarIndex}" class="comodos-container">
+                <!-- Cômodos serão adicionados aqui -->
             </div>
         </div>
     `;
     
-    container.insertAdjacentHTML('beforeend', comodoHtml);
-    comodoIndex++;
-    updateProgress();
+    container.appendChild(div);
     
-    // Adiciona event listeners aos novos campos
-    const novoComodo = container.lastElementChild;
-    const novosInputs = novoComodo.querySelectorAll('input, textarea, select');
-    novosInputs.forEach(input => {
-        input.addEventListener('input', updateProgress);
-        input.addEventListener('change', updateProgress);
-    });
+    // Adicionar primeiro cômodo automaticamente
+    adicionarComodo(andarIndex);
+    updateProgress();
+    calcularAreaConstruida();
 }
 
-// Função para remover cômodo
-function removerComodo(button) {
-    if (confirm('Tem certeza que deseja remover este cômodo?')) {
-        button.closest('.comodo-item').remove();
+function adicionarComodo(andarIndex) {
+    const container = document.getElementById(`comodos-andar-${andarIndex}`);
+    const comodoIndex = container.children.length;
+
+    const div = document.createElement('div');
+    div.className = 'comodo-item row g-3 align-items-end p-3 mb-3 border rounded';
+    div.style.backgroundColor = '#ffffff';
+    
+    div.innerHTML = `
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Tipo *:</label>
+            <select name="andares[${andarIndex}][comodos][${comodoIndex}][tipo]" class="form-select" required>
+                <option value="">Selecione...</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Suíte">Suíte</option>
+                <option value="Sala de Estar">Sala de Estar</option>
+                <option value="Sala de Jantar">Sala de Jantar</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Banheiro">Banheiro</option>
+                <option value="Lavanderia">Lavanderia</option>
+                <option value="Closet">Closet</option>
+                <option value="Área Gourmet">Área Gourmet</option>
+                <option value="Jardim">Jardim</option>
+                <option value="Garagem">Garagem</option>
+                <option value="Churrasqueira">Churrasqueira</option>
+                <option value="Varanda">Varanda</option>
+                <option value="Edícula">Edícula</option>
+                <option value="Escritório">Escritório</option>
+                <option value="Despensa">Despensa</option>
+                <option value="Hall">Hall</option>
+                <option value="Corredor">Corredor</option>
+            </select>
+            <div class="invalid-feedback">Selecione o tipo do cômodo.</div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Nome:</label>
+            <input type="text" name="andares[${andarIndex}][comodos][${comodoIndex}][nome]" class="form-control" 
+                   placeholder="Ex: Quarto do Casal">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Observações:</label>
+            <input type="text" name="andares[${andarIndex}][comodos][${comodoIndex}][observacoes]" class="form-control" 
+                   placeholder="Detalhes específicos do cômodo...">
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerComodo(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(div);
+    updateProgress();
+}
+
+function removerAndar(button) {
+    if (confirm('Tem certeza que deseja remover este andar e todos os seus cômodos?')) {
+        button.closest('.andar-item').remove();
         updateProgress();
-        
-        // Renumera os cômodos
-        const comodos = document.querySelectorAll('.comodo-item');
-        comodos.forEach((comodo, index) => {
-            comodo.querySelector('h6').innerHTML = `<i class="bi bi-door-open"></i> Cômodo ${index + 1}`;
-        });
+        calcularAreaConstruida();
     }
 }
 
-// Função para calcular área do cômodo
-function calcularAreaComodo(input) {
-    const comodoItem = input.closest('.comodo-item');
-    const largura = parseFloat(comodoItem.querySelector('input[name*="[largura]"]').value) || 0;
-    const comprimento = parseFloat(comodoItem.querySelector('input[name*="[comprimento]"]').value) || 0;
-    const area = largura * comprimento;
-    comodoItem.querySelector('input[name*="[area]"]').value = area.toFixed(2);
+function removerComodo(button) {
+    button.closest('.comodo-item').remove();
+    updateProgress();
+}
+
+function calcularAreaConstruida() {
+    const areaInputs = document.querySelectorAll('input[name*="[area]"]');
+    let totalArea = 0;
+    
+    areaInputs.forEach(input => {
+        const valor = parseFloat(input.value) || 0;
+        totalArea += valor;
+    });
+    
+    const areaDisplay = document.getElementById('area-construida-display');
+    if (areaDisplay) {
+        areaDisplay.value = totalArea.toFixed(2);
+    }
 }
 
 // Função para atualizar progresso do formulário
@@ -636,11 +702,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         this.classList.add('was-validated');
-    });
-    
-    // Inicializa áreas dos cômodos existentes
-    document.querySelectorAll('.comodo-item').forEach(comodo => {
-        calcularAreaComodo(comodo.querySelector('input[name*="[largura]"]'));
     });
 });
 </script>

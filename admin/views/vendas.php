@@ -1,12 +1,6 @@
 <?php
-session_start();
+require_once '../auth.php';
 require_once '../../config/config.php';
-
-// Verificar se admin está logado
-if (!isset($_SESSION['admin_logado']) || $_SESSION['admin_logado'] !== true) {
-    header("Location: ../login.php");
-    exit;
-}
 
 // Paginação
 $pagina_atual = intval($_GET['pagina'] ?? 1);

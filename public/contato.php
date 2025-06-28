@@ -1,4 +1,6 @@
-<?php require_once './../includes/header.php'; ?>
+<?php 
+require_once '../config/config.php';
+require_once '../includes/header.php'; ?>
 
 <!-- Hero Section de Contato -->
 <section class="contato-hero">
@@ -755,4 +757,4 @@ document.getElementById('telefone').addEventListener('input', function(e) {
 });
 </script>
 
-<?php require_once './../includes/footer.php'; ?>
+<?php require_once '../includes/footer.php'; ?>

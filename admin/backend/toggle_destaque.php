@@ -1,12 +1,6 @@
 <?php
-session_start();
+require_once '../auth.php';
 require_once '../../config/config.php';
-
-// Verifica se o admin está logado
-if (!isset($_SESSION['admin_logado']) || $_SESSION['admin_logado'] !== true) {
-    header("Location: ../login.php");
-    exit;
-}
 
 // Verifica se foi enviado via POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

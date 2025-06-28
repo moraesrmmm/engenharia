@@ -1,6 +1,7 @@
 <?php
-require_once './../config/config.php';
-require_once './../includes/funcoes.php';
+require_once '../config/config.php';
+require_once '../includes/funcoes.php';
+require_once '../includes/header.php';
 
 // Parâmetros de filtro
 $filtros = [
@@ -483,5 +484,5 @@ function gerarUrlFiltro($filtro, $valor) {
             }
         });
     </script>
-</body>
-</html>
+
+<?php require_once '../includes/footer.php'; ?>

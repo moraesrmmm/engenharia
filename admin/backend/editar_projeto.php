@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../auth.php';
 require_once '../../config/config.php';
 
 // Função para converter URL do YouTube para embed
@@ -20,12 +20,6 @@ function convertYouTubeUrl($url) {
     }
     
     return $url; // Retorna a URL original se não for do YouTube
-}
-
-// Verifica se o admin está logado
-if (!isset($_SESSION['admin_logado']) || $_SESSION['admin_logado'] !== true) {
-    header("Location: ../login.php");
-    exit;
 }
 
 // Verifica se foi enviado via POST

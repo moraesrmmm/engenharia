@@ -1,6 +1,7 @@
 <?php
-require_once './../config/config.php';
-require_once './../includes/funcoes.php';
+require_once '../config/config.php';
+require_once '../includes/funcoes.php';
+require_once '../includes/header.php';
 
 if (!isset($_GET['id'])) {
     header("Location: index.php");
@@ -785,5 +786,5 @@ $comodosData = $comodos->fetchAll();
             }
         });
     </script>
-</body>
-</html>
+
+<?php require_once '../includes/footer.php'; ?>

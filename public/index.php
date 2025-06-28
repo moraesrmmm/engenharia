@@ -1,6 +1,6 @@
 <?php
-require_once './../config/config.php';
-require_once './../includes/header.php';
+require_once '../config/config.php';
+require_once '../includes/header.php';
 
 $stmt = $pdo->query("SELECT * FROM projetos WHERE ativo = TRUE AND destaque = TRUE ORDER BY criado_em DESC LIMIT 6");
 $projetos = $stmt->fetchAll();

@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Verifica se o admin está logado
 if (!isset($_SESSION['admin_logado']) || $_SESSION['admin_logado'] !== true) {
