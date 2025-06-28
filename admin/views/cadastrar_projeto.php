@@ -244,6 +244,22 @@
                         <div class="invalid-feedback">Selecione uma imagem de capa.</div>
                     </div>
                     
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-file-zip"></i> Arquivo do Projeto (ZIP)
+                        </label>
+                        <input type="file" name="arquivo_projeto" accept=".zip" class="form-control"
+                               onchange="previewArquivo(this)">
+                        <small class="text-muted">Arquivo ZIP com plantas, documentos, etc. (opcional)</small>
+                        <div id="arquivo-info" class="mt-2" style="display: none;">
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="bi bi-file-zip me-2"></i>
+                                <span id="arquivo-nome"></span>
+                                <span id="arquivo-tamanho" class="ms-auto badge bg-secondary"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="col-12">
                         <div class="text-center mt-3">
                             <img id="preview-imagem" src="" alt="Preview" 
@@ -449,6 +465,23 @@ function previewImagem(input) {
         }
         
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function previewArquivo(input) {
+    const info = document.getElementById('arquivo-info');
+    const nome = document.getElementById('arquivo-nome');
+    const tamanho = document.getElementById('arquivo-tamanho');
+    
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const size = (file.size / 1024 / 1024).toFixed(2); // MB
+        
+        nome.textContent = file.name;
+        tamanho.textContent = size + ' MB';
+        info.style.display = 'block';
+    } else {
+        info.style.display = 'none';
     }
 }
 

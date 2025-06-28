@@ -82,6 +82,34 @@ try {
         throw new Exception('A imagem de capa é obrigatória!');
     }
 
+    // Upload do arquivo ZIP (opcional)
+    $nomeArquivo = null;
+    if (!empty($_FILES['arquivo_projeto']['name'])) {
+        $arquivo = $_FILES['arquivo_projeto'];
+        
+        // Validações do arquivo ZIP
+        if ($arquivo['type'] !== 'application/zip' && $arquivo['type'] !== 'application/x-zip-compressed') {
+            throw new Exception('Apenas arquivos ZIP são permitidos!');
+        }
+        
+        if ($arquivo['size'] > 50 * 1024 * 1024) { // 50MB
+            throw new Exception('O arquivo ZIP deve ter no máximo 50MB!');
+        }
+        
+        // Cria diretório se não existir
+        $uploadDir = '../../public/uploads/projetos/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $nomeArquivo = uniqid('projeto_') . '.zip';
+        $caminhoCompleto = $uploadDir . $nomeArquivo;
+        
+        if (!move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
+            throw new Exception('Erro ao fazer upload do arquivo do projeto!');
+        }
+    }
+
     // Dados do projeto
     $valor_projeto = !empty($_POST['valor_projeto']) ? floatval($_POST['valor_projeto']) : null;
     $custo_mao_obra = !empty($_POST['custo_mao_obra']) ? floatval($_POST['custo_mao_obra']) : null;
@@ -89,16 +117,16 @@ try {
     $video_url = convertYouTubeUrl(trim($_POST['video_url'] ?? ''));
     $destaque = isset($_POST['destaque']) ? 1 : 0;
 
-    // Salva projeto com novos campos (tipo, largura, comprimento e área do terreno)
+    // Salva projeto com novos campos (tipo, largura, comprimento e área do terreno + arquivo)
     $stmt = $pdo->prepare("
         INSERT INTO projetos 
-        (titulo, descricao, tipo_projeto, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, video_url, capa_imagem, destaque) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (titulo, descricao, tipo_projeto, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, video_url, capa_imagem, arquivo_projeto, destaque) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $resultado = $stmt->execute([
         $titulo, $descricao, $tipo_projeto, $largura_terreno, $comprimento_terreno, $area_terreno,
-        $valor_projeto, $custo_mao_obra, $custo_materiais, $video_url, $nomeImagem, $destaque
+        $valor_projeto, $custo_mao_obra, $custo_materiais, $video_url, $nomeImagem, $nomeArquivo, $destaque
     ]);
 
     if (!$resultado) {

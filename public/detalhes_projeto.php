@@ -170,12 +170,22 @@ $comodosData = $comodos->fetchAll();
 
                         <!-- Preço Total -->
                         <?php if ($projeto['valor_projeto']): ?>
-                            <div class="projeto-info-card">
+                            <div class="projeto-info-card precos-card">
                                 <div class="info-icon">
                                     <i class="bi bi-currency-dollar"></i>
                                 </div>
                                 <div class="info-title">Investimento</div>
                                 <div class="info-value"><?= formatarMoeda($projeto['valor_projeto']) ?></div>
+                                
+                                <!-- Botão de compra estratégico -->
+                                <?php if (!empty($projeto['arquivo_projeto'])): ?>
+                                    <div class="mt-3">
+                                        <button class="btn btn-success btn-sm w-100" onclick="iniciarCompra(<?= $projeto['id'] ?>)">
+                                            <i class="bi bi-download"></i> Comprar Projeto
+                                        </button>
+                                        <small class="text-muted d-block mt-1">Receba plantas e documentos</small>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
@@ -355,16 +365,221 @@ $comodosData = $comodos->fetchAll();
 
             <!-- Call to Action -->
             <div class="text-center mt-5 mb-4">
-                <a href="contato.php" class="btn btn-lg back-button">
-                    <i class="bi bi-envelope"></i>
-                    Interessado? Entre em Contato
-                </a>
+                <?php if (!empty($projeto['arquivo_projeto'])): ?>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-lg-4">
+                            <button class="btn btn-success btn-lg w-100" onclick="iniciarCompra(<?= $projeto['id'] ?>)">
+                                <i class="bi bi-download"></i>
+                                Comprar Projeto Completo
+                            </button>
+                            <small class="text-muted d-block mt-2">
+                                Plantas, documentos e especificações técnicas
+                            </small>
+                        </div>
+                        <div class="col-lg-4">
+                            <a href="contato.php" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-envelope"></i>
+                                Interessado? Entre em Contato
+                            </a>
+                            <small class="text-muted d-block mt-2">
+                                Tire suas dúvidas e solicite orçamentos
+                            </small>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="contato.php" class="btn btn-lg back-button">
+                        <i class="bi bi-envelope"></i>
+                        Interessado? Entre em Contato
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </section>
 
+    <!-- Modal de Compra -->
+    <div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalCompraLabel">
+                        <i class="bi bi-cart-plus"></i> Comprar Projeto: <?= htmlspecialchars($projeto['titulo']) ?>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="<?= asset('uploads/' . htmlspecialchars($projeto['capa_imagem'])) ?>" 
+                                 class="img-fluid rounded mb-3" 
+                                 alt="<?= htmlspecialchars($projeto['titulo']) ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">O que você receberá:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success"></i> Plantas baixas completas</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Cortes e fachadas</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Memorial descritivo</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Especificações técnicas</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Lista de materiais</li>
+                            </ul>
+                            
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Arquivo Digital:</strong> Você receberá por email um arquivo ZIP com todos os documentos em formato PDF e DWG.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <form id="formCompra">
+                        <input type="hidden" id="projeto_id" value="<?= $projeto['id'] ?>">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nome Completo *</label>
+                                <input type="text" class="form-control" id="nome_cliente" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email *</label>
+                                <input type="email" class="form-control" id="email_cliente" required>
+                                <small class="text-muted">O arquivo será enviado para este email</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Telefone (WhatsApp)</label>
+                                <input type="tel" class="form-control" id="telefone_cliente" placeholder="(11) 99999-9999">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Valor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" value="<?= number_format($projeto['valor_projeto'], 2, ',', '.') ?>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aceito_termos" required>
+                                <label class="form-check-label" for="aceito_termos">
+                                    Concordo com os <a href="#" data-bs-toggle="modal" data-bs-target="#modalTermos">termos e condições</a> de compra
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="processarPagamento()">
+                        <i class="bi bi-credit-card"></i> Pagar com Mercado Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Termos -->
+    <div class="modal fade" id="modalTermos" tabindex="-1" aria-labelledby="modalTermosLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTermosLabel">Termos e Condições de Compra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>1. Sobre o Produto</h6>
+                    <p>O produto consiste em arquivos digitais contendo plantas, documentos e especificações técnicas do projeto arquitetônico selecionado.</p>
+                    
+                    <h6>2. Entrega</h6>
+                    <p>Os arquivos serão enviados automaticamente para o email informado após a confirmação do pagamento, em até 24 horas.</p>
+                    
+                    <h6>3. Direitos Autorais</h6>
+                    <p>Os projetos são de propriedade intelectual da empresa. A compra concede direito de uso pessoal, sendo proibida a revenda ou distribuição.</p>
+                    
+                    <h6>4. Suporte</h6>
+                    <p>Em caso de dúvidas sobre os arquivos, oferecemos suporte técnico por 30 dias após a compra.</p>
+                    
+                    <h6>5. Política de Reembolso</h6>
+                    <p>Por se tratar de produto digital, não há possibilidade de reembolso após o envio dos arquivos.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript para compra -->
+    <script>
+        function iniciarCompra(projetoId) {
+            document.getElementById('projeto_id').value = projetoId;
+            const modal = new bootstrap.Modal(document.getElementById('modalCompra'));
+            modal.show();
+        }
+
+        function processarPagamento() {
+            // Validar formulário
+            const form = document.getElementById('formCompra');
+            const nome = document.getElementById('nome_cliente').value.trim();
+            const email = document.getElementById('email_cliente').value.trim();
+            const aceito = document.getElementById('aceito_termos').checked;
+            
+            if (!nome || !email || !aceito) {
+                alert('Por favor, preencha todos os campos obrigatórios e aceite os termos.');
+                return;
+            }
+            
+            // Validar email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Por favor, insira um email válido.');
+                return;
+            }
+            
+            // Preparar dados
+            const dados = {
+                projeto_id: document.getElementById('projeto_id').value,
+                nome_cliente: nome,
+                email_cliente: email,
+                telefone_cliente: document.getElementById('telefone_cliente').value.trim()
+            };
+            
+            // Mostrar loading
+            const btnPagar = event.target;
+            const textoOriginal = btnPagar.innerHTML;
+            btnPagar.innerHTML = '<i class="bi bi-hourglass-split"></i> Processando...';
+            btnPagar.disabled = true;
+            
+            // Enviar para backend
+            fetch('<?= url("api/iniciar_pagamento.php") ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dados)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirecionar para o Mercado Pago
+                    window.location.href = data.checkout_url;
+                } else {
+                    alert('Erro: ' + (data.message || 'Não foi possível processar o pagamento'));
+                    btnPagar.innerHTML = textoOriginal;
+                    btnPagar.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao processar pagamento. Tente novamente.');
+                btnPagar.innerHTML = textoOriginal;
+                btnPagar.disabled = false;
+            });
+        }
+    </script>
     
     <!-- Estilos adicionais para andares -->
     <style>
@@ -486,6 +701,57 @@ $comodosData = $comodos->fetchAll();
         
         .comodo-obs i {
             margin-right: 0.3rem;
+        }
+        
+        /* Estilos para botões de compra */
+        .precos-card {
+            position: relative;
+            overflow: visible;
+        }
+        
+        .precos-card .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .precos-card .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(45deg, #218838, #1e7e34);
+        }
+        
+        .compra-destaque {
+            animation: pulse-buy 2s infinite;
+        }
+        
+        @keyframes pulse-buy {
+            0% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+            50% { box-shadow: 0 6px 25px rgba(40, 167, 69, 0.6); }
+            100% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+        }
+        
+        /* Modal customização */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .modal-header.bg-success {
+            background: linear-gradient(45deg, #28a745, #20c997) !important;
+        }
+        
+        .list-unstyled li {
+            padding: 0.3rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .list-unstyled .bi-check-circle {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
         }
     </style>
     
