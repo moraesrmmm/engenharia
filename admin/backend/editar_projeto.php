@@ -50,20 +50,18 @@ try {
     // Validações básicas
     $titulo = trim($_POST['titulo'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
-    $largura = floatval($_POST['largura'] ?? 0);
-    $comprimento = floatval($_POST['comprimento'] ?? 0);
-    $area = floatval($_POST['area'] ?? 0);
-    $preco_total = floatval($_POST['preco_total'] ?? 0);
+    $area_terreno = floatval($_POST['area_terreno'] ?? 0);
+    $valor_projeto = floatval($_POST['valor_projeto'] ?? 0);
     $custo_mao_obra = floatval($_POST['custo_mao_obra'] ?? 0);
     $custo_materiais = floatval($_POST['custo_materiais'] ?? 0);
     $video_url = trim($_POST['video_url'] ?? '');
     $destaque = isset($_POST['destaque']) ? 1 : 0;
 
-    if (empty($titulo) || empty($descricao) || $largura <= 0 || $comprimento <= 0 || $area <= 0) {
+    if (empty($titulo) || empty($descricao) || $area_terreno <= 0) {
         throw new Exception('Todos os campos obrigatórios devem ser preenchidos corretamente!');
     }
 
-    if ($preco_total <= 0 || $custo_mao_obra < 0 || $custo_materiais < 0) {
+    if ($valor_projeto < 0 || $custo_mao_obra < 0 || $custo_materiais < 0) {
         throw new Exception('Os valores financeiros devem ser válidos!');
     }
 
@@ -119,20 +117,18 @@ try {
     // Converte URL do YouTube
     $video_url = convertYouTubeUrl($video_url);
 
-    // Atualiza o projeto
+    // Atualiza o projeto (apenas com área do terreno)
     $sql_update = "UPDATE projetos SET 
                    titulo = ?, 
                    descricao = ?, 
-                   largura = ?, 
-                   comprimento = ?, 
-                   area = ?, 
-                   preco_total = ?, 
+                   area_terreno = ?, 
+                   valor_projeto = ?, 
                    custo_mao_obra = ?, 
                    custo_materiais = ?, 
                    video_url = ?, 
                    destaque = ?";
     
-    $params = [$titulo, $descricao, $largura, $comprimento, $area, $preco_total, 
+    $params = [$titulo, $descricao, $area_terreno, $valor_projeto, 
                $custo_mao_obra, $custo_materiais, $video_url, $destaque];
 
     // Adiciona atualização da imagem se uma nova foi enviada
@@ -147,39 +143,71 @@ try {
     $stmt = $pdo->prepare($sql_update);
     $stmt->execute($params);
 
-    // Processa cômodos
-    if (isset($_POST['comodos']) && is_array($_POST['comodos'])) {
-        // Primeiro, marca todos os cômodos existentes como inativos
+    // Processa andares e cômodos
+    if (isset($_POST['andares']) && is_array($_POST['andares'])) {
+        // Primeiro, marca todos os andares existentes como inativos
+        $stmt = $pdo->prepare("UPDATE andares SET ativo = FALSE WHERE projeto_id = ?");
+        $stmt->execute([$projeto_id]);
+
+        // Marca todos os cômodos como inativos
         $stmt = $pdo->prepare("UPDATE comodos SET ativo = FALSE WHERE projeto_id = ?");
         $stmt->execute([$projeto_id]);
 
-        // Processa cada cômodo
-        foreach ($_POST['comodos'] as $comodo_data) {
-            $tipo = trim($comodo_data['tipo'] ?? '');
-            $nome = trim($comodo_data['nome'] ?? '');
-            $comodo_largura = floatval($comodo_data['largura'] ?? 0);
-            $comodo_comprimento = floatval($comodo_data['comprimento'] ?? 0);
-            $observacoes = trim($comodo_data['observacoes'] ?? '');
-            $comodo_id = isset($comodo_data['id']) ? intval($comodo_data['id']) : 0;
+        // Processa cada andar
+        foreach ($_POST['andares'] as $andar_data) {
+            $nome_andar = trim($andar_data['nome'] ?? '');
+            $area_andar = floatval($andar_data['area'] ?? 0);
+            $ordem_andar = intval($andar_data['ordem'] ?? 1);
+            $observacoes_andar = trim($andar_data['observacoes'] ?? '');
+            $andar_id = isset($andar_data['id']) ? intval($andar_data['id']) : 0;
 
-            if (empty($tipo)) continue; // Pula cômodos sem tipo
+            if (empty($nome_andar) || $area_andar <= 0) continue; // Pula andares inválidos
 
-            if ($comodo_id > 0) {
-                // Atualiza cômodo existente
-                $stmt = $pdo->prepare("UPDATE comodos SET 
-                                     tipo = ?, 
+            if ($andar_id > 0) {
+                // Atualiza andar existente
+                $stmt = $pdo->prepare("UPDATE andares SET 
                                      nome = ?, 
-                                     largura = ?, 
-                                     comprimento = ?, 
+                                     area = ?, 
+                                     ordem = ?,
                                      observacoes = ?, 
                                      ativo = TRUE 
                                      WHERE id = ? AND projeto_id = ?");
-                $stmt->execute([$tipo, $nome, $comodo_largura, $comodo_comprimento, $observacoes, $comodo_id, $projeto_id]);
+                $stmt->execute([$nome_andar, $area_andar, $ordem_andar, $observacoes_andar, $andar_id, $projeto_id]);
             } else {
-                // Insere novo cômodo
-                $stmt = $pdo->prepare("INSERT INTO comodos (projeto_id, tipo, nome, largura, comprimento, observacoes) 
-                                     VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$projeto_id, $tipo, $nome, $comodo_largura, $comodo_comprimento, $observacoes]);
+                // Insere novo andar
+                $stmt = $pdo->prepare("INSERT INTO andares (projeto_id, nome, area, ordem, observacoes) 
+                                     VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$projeto_id, $nome_andar, $area_andar, $ordem_andar, $observacoes_andar]);
+                $andar_id = $pdo->lastInsertId();
+            }
+
+            // Processa cômodos deste andar
+            if (isset($andar_data['comodos']) && is_array($andar_data['comodos'])) {
+                foreach ($andar_data['comodos'] as $comodo_data) {
+                    $tipo_comodo = trim($comodo_data['tipo'] ?? '');
+                    $nome_comodo = trim($comodo_data['nome'] ?? '');
+                    $observacoes_comodo = trim($comodo_data['observacoes'] ?? '');
+                    $comodo_id = isset($comodo_data['id']) ? intval($comodo_data['id']) : 0;
+
+                    if (empty($tipo_comodo)) continue; // Pula cômodos sem tipo
+
+                    if ($comodo_id > 0) {
+                        // Atualiza cômodo existente (sem largura/comprimento)
+                        $stmt = $pdo->prepare("UPDATE comodos SET 
+                                             andar_id = ?,
+                                             tipo = ?, 
+                                             nome = ?, 
+                                             observacoes = ?, 
+                                             ativo = TRUE 
+                                             WHERE id = ? AND projeto_id = ?");
+                        $stmt->execute([$andar_id, $tipo_comodo, $nome_comodo, $observacoes_comodo, $comodo_id, $projeto_id]);
+                    } else {
+                        // Insere novo cômodo (sem largura/comprimento)
+                        $stmt = $pdo->prepare("INSERT INTO comodos (projeto_id, andar_id, tipo, nome, observacoes) 
+                                             VALUES (?, ?, ?, ?, ?)");
+                        $stmt->execute([$projeto_id, $andar_id, $tipo_comodo, $nome_comodo, $observacoes_comodo]);
+                    }
+                }
             }
         }
     }

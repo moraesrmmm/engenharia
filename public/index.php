@@ -45,7 +45,7 @@ $projetos = $stmt->fetchAll();
             </div>
             
             <div class="hero-cta">
-              <a href="/engenharia/public/projetos.php" class="btn btn-cta btn-lg">
+              <a href="<?= url('projetos.php') ?>" class="btn btn-cta btn-lg">
                 Adquira agora seu projeto e<br>
                 construa com qualidade e economia!
               </a>
@@ -104,7 +104,7 @@ $projetos = $stmt->fetchAll();
         <div class="col-lg-4 col-md-6 mb-4">
           <div class="project-card h-100">
             <div class="project-image">
-              <img src="/engenharia/public/uploads/<?= htmlspecialchars($p['capa_imagem']) ?>" 
+              <img src="<?= asset('uploads/' . htmlspecialchars($p['capa_imagem'])) ?>" 
                    alt="<?= htmlspecialchars($p['titulo']) ?>" 
                    class="img-fluid">
               <div class="project-overlay">
@@ -124,10 +124,10 @@ $projetos = $stmt->fetchAll();
                   <i class="bi bi-badge-ad text-primary"></i>
                   <span><?= number_format($p['area'], 2, ',', '.') ?> m²</span>
                 </div>
-                <?php if ($p['preco_total']): ?>
+                <?php if ($p['valor_projeto']): ?>
                 <div class="info-item">
                   <i class="bi bi-currency-dollar text-success"></i>
-                  <span>R$ <?= number_format($p['preco_total'], 2, ',', '.') ?></span>
+                  <span>R$ <?= number_format($p['valor_projeto'], 2, ',', '.') ?></span>
                 </div>
                 <?php endif; ?>
               </div>
@@ -141,7 +141,7 @@ $projetos = $stmt->fetchAll();
     </div>
 
     <div class="text-center mt-4 mb-4">
-      <a href="/engenharia/public/projetos.php" class="btn btn-primary btn-lg">
+      <a href="<?= url('projetos.php') ?>" class="btn btn-primary btn-lg">
         <i class="bi bi-grid-3x3-gap"></i> Ver Todos os Projetos
       </a>
     </div>
@@ -203,7 +203,7 @@ $projetos = $stmt->fetchAll();
     </div>
     
     <div class="text-center mt-5">
-      <a href="/engenharia/public/projetos.php" class="btn btn-credibility btn-lg px-5">
+      <a href="<?= url('projetos.php') ?>" class="btn btn-credibility btn-lg px-5">
         Ver todos os projetos <i class="bi bi-arrow-right"></i>
       </a>
     </div>

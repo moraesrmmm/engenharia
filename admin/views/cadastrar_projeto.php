@@ -65,39 +65,31 @@
                 </div>
             </div>
 
-            <!-- Seção 2: Dimensões -->
+            <!-- Seção 2: Área do Terreno -->
             <div class="form-section" data-section="2">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-rulers text-primary"></i> Dimensões e Área
+                    <i class="bi bi-rulers text-primary"></i> Áreas do Projeto
                 </h5>
                 
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-arrow-left-right"></i> Largura (m) *
+                            <i class="bi bi-badge-ad"></i> Área do Terreno (m²) *
                         </label>
-                        <input type="number" step="0.01" name="largura" class="form-control" required 
-                               placeholder="0.00" onchange="calcularArea()">
-                        <div class="invalid-feedback">Informe a largura em metros.</div>
+                        <input type="number" step="0.01" name="area_terreno" class="form-control" required 
+                               placeholder="0.00">
+                        <div class="invalid-feedback">Informe a área do terreno em metros quadrados.</div>
+                        <small class="text-muted">Área total disponível do terreno</small>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-arrow-up-down"></i> Comprimento (m) *
+                            <i class="bi bi-building"></i> Área Construída (m²)
                         </label>
-                        <input type="number" step="0.01" name="comprimento" class="form-control" required 
-                               placeholder="0.00" onchange="calcularArea()">
-                        <div class="invalid-feedback">Informe o comprimento em metros.</div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-badge-ad"></i> Área Total (m²) *
-                        </label>
-                        <input type="number" step="0.01" name="area" class="form-control" required 
-                               placeholder="0.00" readonly style="background-color: #f8f9fa;">
-                        <small class="text-muted">Calculado automaticamente</small>
+                        <input type="number" step="0.01" name="area_construida" class="form-control" readonly 
+                               placeholder="0.00" style="background-color: #f8f9fa;" id="area-construida-display">
+                        <small class="text-muted">Soma automática das áreas dos andares</small>
                     </div>
                 </div>
             </div>
@@ -112,9 +104,9 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-cash-stack"></i> Preço Total (R$)
+                            <i class="bi bi-cash-stack"></i> Valor do Projeto (R$)
                         </label>
-                        <input type="number" step="0.01" name="preco_total" class="form-control" 
+                        <input type="number" step="0.01" name="valor_projeto" class="form-control" 
                                placeholder="0.00">
                         <small class="text-muted">Valor total do projeto</small>
                     </div>
@@ -174,18 +166,22 @@
                 </div>
             </div>
 
-            <!-- Seção 5: Cômodos -->
+            <!-- Seção 5: Andares e Cômodos -->
             <div class="form-section" data-section="5">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-house-door text-primary"></i> Cômodos do Projeto
+                    <i class="bi bi-building text-primary"></i> Andares do Projeto
                 </h5>
                 
-                <div id="comodos-container"></div>
+                <div id="andares-container">
+                    <!-- Andares serão adicionados dinamicamente aqui -->
+                </div>
                 
-                <button type="button" class="btn btn-outline-primary" onclick="adicionarComodo()">
-                    <i class="bi bi-plus-circle"></i> Adicionar Cômodo
-                </button>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-primary" onclick="adicionarAndar()">
+                        <i class="bi bi-plus-circle"></i> Adicionar Andar
+                    </button>
+                </div>
             </div>
 
             <!-- Botões de Ação -->
@@ -203,70 +199,198 @@
 </div>
 
 <script>
+let andaresCount = 0;
 let comodosCount = 0;
 
-function adicionarComodo() {
-    const container = document.getElementById('comodos-container');
-    const index = comodosCount++;
+function adicionarAndar() {
+    const container = document.getElementById('andares-container');
+    const andarIndex = andaresCount++;
 
     const div = document.createElement('div');
-    div.className = 'comodo-item';
+    div.className = 'andar-item border rounded-3 p-4 mb-4';
+    div.style.backgroundColor = '#f8f9fa';
+    div.setAttribute('data-andar-index', andarIndex);
+    
     div.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0"><i class="bi bi-door-open text-primary"></i> Cômodo ${index + 1}</h6>
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.comodo-item').remove()">
-                <i class="bi bi-trash"></i>
+            <h6 class="mb-0 text-primary"><i class="bi bi-layers-fill"></i> Andar ${andarIndex + 1}</h6>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerAndar(this)">
+                <i class="bi bi-trash"></i> Remover Andar
             </button>
         </div>
         
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Tipo:</label>
-                <select name="tipo[]" class="form-select" required>
-                    <option value="">Selecione...</option>
-                    <option value="Quarto">Quarto</option>
-                    <option value="Suíte">Suíte</option>
-                    <option value="Sala de Estar">Sala de Estar</option>
-                    <option value="Sala de Jantar">Sala de Jantar</option>
-                    <option value="Cozinha">Cozinha</option>
-                    <option value="Banheiro">Banheiro</option>
-                    <option value="Lavanderia">Lavanderia</option>
-                    <option value="Closet">Closet</option>
-                    <option value="Área Gourmet">Área Gourmet</option>
-                    <option value="Jardim">Jardim</option>
-                    <option value="Garagem">Garagem</option>
-                    <option value="Churrasqueira">Churrasqueira</option>
-                    <option value="Varanda">Varanda</option>
-                    <option value="Edícula">Edícula</option>
-                    <option value="Escritório">Escritório</option>
-                </select>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Nome do Andar:</label>
+                <input type="text" name="andares[${andarIndex}][nome]" class="form-control" 
+                       placeholder="Ex: Térreo, Primeiro Andar, Segundo Andar">
             </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Nome:</label>
-                <input type="text" name="nome[]" class="form-control" placeholder="Ex: Quarto Casal">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Área do Andar (m²) *:</label>
+                <input type="number" step="0.01" name="andares[${andarIndex}][area]" class="form-control" 
+                       placeholder="0.00" required onchange="updateProgress(); calcularAreaConstruida()">
+                <div class="invalid-feedback">Informe a área do andar.</div>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">Largura:</label>
-                <input type="number" step="0.01" name="largura_comodo[]" class="form-control" placeholder="0.00">
+        </div>
+        
+        <div class="border-top pt-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0"><i class="bi bi-door-open text-success"></i> Cômodos deste Andar</h6>
+                <button type="button" class="btn btn-sm btn-outline-success mb-2" onclick="adicionarComodo(${andarIndex})">
+                    <i class="bi bi-plus-circle"></i> Adicionar Cômodo
+                </button>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">Comprimento:</label>
-                <input type="number" step="0.01" name="comprimento_comodo[]" class="form-control" placeholder="0.00">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold">Observações:</label>
-                <input type="text" name="observacoes[]" class="form-control" placeholder="Detalhes...">
+            <div id="comodos-andar-${andarIndex}" class="comodos-container">
+                <!-- Cômodos serão adicionados aqui -->
             </div>
         </div>
     `;
+    
+    container.appendChild(div);
+    
+    // Adicionar primeiro cômodo automaticamente
+    adicionarComodo(andarIndex);
+    updateProgress();
+    calcularAreaConstruida();
+}
+
+function adicionarComodo(andarIndex) {
+    const container = document.getElementById(`comodos-andar-${andarIndex}`);
+    const comodoIndex = container.children.length;
+
+    const div = document.createElement('div');
+    div.className = 'comodo-item row g-3 align-items-end p-3 mb-3 border rounded';
+    div.style.backgroundColor = '#ffffff';
+    
+    div.innerHTML = `
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Tipo *:</label>
+            <select name="andares[${andarIndex}][comodos][${comodoIndex}][tipo]" class="form-select" required>
+                <option value="">Selecione...</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Suíte">Suíte</option>
+                <option value="Sala de Estar">Sala de Estar</option>
+                <option value="Sala de Jantar">Sala de Jantar</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Banheiro">Banheiro</option>
+                <option value="Lavanderia">Lavanderia</option>
+                <option value="Closet">Closet</option>
+                <option value="Área Gourmet">Área Gourmet</option>
+                <option value="Jardim">Jardim</option>
+                <option value="Garagem">Garagem</option>
+                <option value="Churrasqueira">Churrasqueira</option>
+                <option value="Varanda">Varanda</option>
+                <option value="Edícula">Edícula</option>
+                <option value="Escritório">Escritório</option>
+                <option value="Despensa">Despensa</option>
+                <option value="Hall">Hall</option>
+                <option value="Corredor">Corredor</option>
+            </select>
+            <div class="invalid-feedback">Selecione o tipo do cômodo.</div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Nome:</label>
+            <input type="text" name="andares[${andarIndex}][comodos][${comodoIndex}][nome]" class="form-control" 
+                   placeholder="Ex: Quarto do Casal">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Observações:</label>
+            <input type="text" name="andares[${andarIndex}][comodos][${comodoIndex}][observacoes]" class="form-control" 
+                   placeholder="Detalhes específicos do cômodo...">
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerComodo(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    
     container.appendChild(div);
     updateProgress();
 }
 
-// Adicionar primeiro cômodo automaticamente
-document.addEventListener('DOMContentLoaded', function() {
-    adicionarComodo();
+function removerAndar(button) {
+    if (confirm('Tem certeza que deseja remover este andar e todos os seus cômodos?')) {
+        button.closest('.andar-item').remove();
+        updateProgress();
+        calcularAreaConstruida();
+    }
+}
+
+function removerComodo(button) {
+    button.closest('.comodo-item').remove();
     updateProgress();
+}
+
+function calcularAreaConstruida() {
+    const areaInputs = document.querySelectorAll('input[name*="[area]"]');
+    let totalArea = 0;
+    
+    areaInputs.forEach(input => {
+        const valor = parseFloat(input.value) || 0;
+        totalArea += valor;
+    });
+    
+    const areaDisplay = document.getElementById('area-construida-display');
+    if (areaDisplay) {
+        areaDisplay.value = totalArea.toFixed(2);
+    }
+}
+
+function previewImagem(input) {
+    const preview = document.getElementById('preview-imagem');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function validarFormulario() {
+    const form = document.getElementById('projeto-form');
+    const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (field.value.trim() === '') {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    // Verificar se há pelo menos um andar
+    const andares = document.querySelectorAll('.andar-item');
+    if (andares.length === 0) {
+        alert('Adicione pelo menos um andar ao projeto!');
+        return false;
+    }
+    
+    // Verificar se cada andar tem pelo menos um cômodo
+    let andarSemComodo = false;
+    andares.forEach((andar, index) => {
+        const comodos = andar.querySelectorAll('.comodo-item');
+        if (comodos.length === 0) {
+            alert(`O andar ${index + 1} deve ter pelo menos um cômodo!`);
+            andarSemComodo = true;
+        }
+    });
+    
+    return isValid && !andarSemComodo;
+}
+
+// Adicionar primeiro andar automaticamente
+document.addEventListener('DOMContentLoaded', function() {
+    adicionarAndar();
+    updateProgress();
+    calcularAreaConstruida();
     
     // Monitor de progresso
     const form = document.getElementById('projeto-form');
@@ -297,77 +421,8 @@ function updateProgress() {
 document.getElementById('projeto-form').addEventListener('submit', function(e) {
     if (!validarFormulario()) {
         e.preventDefault();
-        alert('Por favor, preencha todos os campos obrigatórios!');
     }
 });
 </script>
 
 <?php require_once '../includes/footer.php'; ?>
-
-  <!-- Seção de cômodos -->
-  <hr class="my-4">
-  <h4>Cômodos do Projeto</h4>
-
-  <div id="comodos-container"></div>
-
-  <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="adicionarComodo()">+ Adicionar Cômodo</button>
-
-  <hr class="my-4">
-
-  <button type="submit" class="btn btn-success">Salvar Projeto</button>
-</form>
-
-<script>
-function adicionarComodo() {
-  const container = document.getElementById('comodos-container');
-  const index = container.children.length;
-
-  const div = document.createElement('div');
-  div.className = 'row g-2 align-items-end mt-3';
-  div.innerHTML = `
-    <div class="col-md-2">
-      <label>Tipo:</label>
-      <select name="tipo[]" class="form-select" required>
-        <option value="">--</option>
-        <option value="Quarto">Quarto</option>
-        <option value="Suíte">Suíte</option>
-        <option value="Sala de Estar">Sala de Estar</option>
-        <option value="Sala de Jantar">Sala de Jantar</option>
-        <option value="Cozinha">Cozinha</option>
-        <option value="Banheiro">Banheiro</option>
-        <option value="Lavanderia">Lavanderia</option>
-        <option value="Closet">Closet</option>
-        <option value="Área Gourmet">Área Gourmet</option>
-        <option value="Jardim">Jardim</option>
-        <option value="Garagem">Garagem</option>
-        <option value="Churrasqueira">Churrasqueira</option>
-        <option value="Varanda">Varanda</option>
-        <option value="Edícula">Edícula</option>
-        <option value="Escritório">Escritório</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label>Nome:</label>
-      <input type="text" name="nome[]" class="form-control">
-    </div>
-    <div class="col-md-2">
-      <label>Largura:</label>
-      <input type="number" step="0.01" name="largura_comodo[]" class="form-control">
-    </div>
-    <div class="col-md-2">
-      <label>Comprimento:</label>
-      <input type="number" step="0.01" name="comprimento_comodo[]" class="form-control">
-    </div>
-    <div class="col-md-3">
-      <label>Observações:</label>
-      <input type="text" name="observacoes[]" class="form-control">
-    </div>
-    <div class="col-md-1 text-end">
-      <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.row').remove()">x</button>
-    </div>
-  `;
-  container.appendChild(div);
-}
-</script>
-
-<?php require_once './../includes/footer.php'; ?>

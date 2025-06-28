@@ -41,11 +41,9 @@ try {
     // Validações básicas
     $titulo = trim($_POST['titulo'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
-    $largura = floatval($_POST['largura'] ?? 0);
-    $comprimento = floatval($_POST['comprimento'] ?? 0);
-    $area = floatval($_POST['area'] ?? 0);
+    $area_terreno = floatval($_POST['area_terreno'] ?? 0);
 
-    if (empty($titulo) || empty($descricao) || $largura <= 0 || $comprimento <= 0 || $area <= 0) {
+    if (empty($titulo) || empty($descricao) || $area_terreno <= 0) {
         throw new Exception('Todos os campos obrigatórios devem ser preenchidos corretamente!');
     }
 
@@ -82,23 +80,22 @@ try {
     }
 
     // Dados do projeto
-    $preco_total = !empty($_POST['preco_total']) ? floatval($_POST['preco_total']) : null;
+    $valor_projeto = !empty($_POST['valor_projeto']) ? floatval($_POST['valor_projeto']) : null;
     $custo_mao_obra = !empty($_POST['custo_mao_obra']) ? floatval($_POST['custo_mao_obra']) : null;
     $custo_materiais = !empty($_POST['custo_materiais']) ? floatval($_POST['custo_materiais']) : null;
     $video_url = convertYouTubeUrl(trim($_POST['video_url'] ?? ''));
     $destaque = isset($_POST['destaque']) ? 1 : 0;
-    $largura_comprimento = number_format($largura, 2, ',', '') . 'm x ' . number_format($comprimento, 2, ',', '') . 'm';
 
-    // Salva projeto
+    // Salva projeto com novos campos (apenas área do terreno)
     $stmt = $pdo->prepare("
         INSERT INTO projetos 
-        (titulo, descricao, largura, comprimento, largura_comprimento, area, preco_total, custo_mao_obra, custo_materiais, video_url, capa_imagem, destaque) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (titulo, descricao, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, video_url, capa_imagem, destaque) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $resultado = $stmt->execute([
-        $titulo, $descricao, $largura, $comprimento, $largura_comprimento, $area,
-        $preco_total, $custo_mao_obra, $custo_materiais, $video_url, $nomeImagem, $destaque
+        $titulo, $descricao, $area_terreno,
+        $valor_projeto, $custo_mao_obra, $custo_materiais, $video_url, $nomeImagem, $destaque
     ]);
 
     if (!$resultado) {
@@ -107,41 +104,77 @@ try {
 
     $projeto_id = $pdo->lastInsertId();
 
-    // Cadastrar cômodos
-    $tipos = $_POST['tipo'] ?? [];
-    $nomes = $_POST['nome'] ?? [];
-    $larguras = $_POST['largura_comodo'] ?? [];
-    $comprimentos = $_POST['comprimento_comodo'] ?? [];
-    $observacoes = $_POST['observacoes'] ?? [];
+    // Processar andares e cômodos
+    $andares = $_POST['andares'] ?? [];
+    $totalAndares = 0;
+    $totalComodos = 0;
 
-    $comodosInseridos = 0;
-    for ($i = 0; $i < count($tipos); $i++) {
-        if (empty($tipos[$i])) continue;
+    foreach ($andares as $andar_data) {
+        $nome_andar = trim($andar_data['nome'] ?? '');
+        $area_andar = floatval($andar_data['area'] ?? 0);
+        $ordem_andar = intval($andar_data['ordem'] ?? 1);
+        $observacoes_andar = trim($andar_data['observacoes'] ?? '');
 
+        if (empty($nome_andar) || $area_andar <= 0) {
+            continue; // Pula andares inválidos
+        }
+
+        // Insere andar
         $stmt = $pdo->prepare("
-            INSERT INTO comodos (projeto_id, tipo, nome, largura, comprimento, observacoes) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO andares (projeto_id, nome, area, ordem, observacoes) 
+            VALUES (?, ?, ?, ?, ?)
         ");
         
         $resultado = $stmt->execute([
-            $projeto_id,
-            $tipos[$i],
-            $nomes[$i] ?? '',
-            !empty($larguras[$i]) ? floatval($larguras[$i]) : null,
-            !empty($comprimentos[$i]) ? floatval($comprimentos[$i]) : null,
-            $observacoes[$i] ?? ''
+            $projeto_id, $nome_andar, $area_andar, $ordem_andar, $observacoes_andar
         ]);
 
         if ($resultado) {
-            $comodosInseridos++;
+            $andar_id = $pdo->lastInsertId();
+            $totalAndares++;
+
+            // Processar cômodos deste andar
+            $comodos = $andar_data['comodos'] ?? [];
+            
+            foreach ($comodos as $comodo_data) {
+                $tipo_comodo = trim($comodo_data['tipo'] ?? '');
+                $nome_comodo = trim($comodo_data['nome'] ?? '');
+                $observacoes_comodo = trim($comodo_data['observacoes'] ?? '');
+
+                if (empty($tipo_comodo)) continue; // Pula cômodos sem tipo
+
+                // Insere cômodo (sem largura e comprimento)
+                $stmt = $pdo->prepare("
+                    INSERT INTO comodos (projeto_id, andar_id, tipo, nome, observacoes) 
+                    VALUES (?, ?, ?, ?, ?)
+                ");
+                
+                $resultado = $stmt->execute([
+                    $projeto_id, $andar_id, $tipo_comodo, $nome_comodo, $observacoes_comodo
+                ]);
+
+                if ($resultado) {
+                    $totalComodos++;
+                }
+            }
         }
+    }
+
+    // Se nenhum andar foi criado, cria um térreo padrão
+    if ($totalAndares === 0) {
+        $stmt = $pdo->prepare("
+            INSERT INTO andares (projeto_id, nome, area, ordem, observacoes) 
+            VALUES (?, 'Térreo', ?, 1, 'Andar criado automaticamente')
+        ");
+        $stmt->execute([$projeto_id, $area_terreno]);
+        $totalAndares = 1;
     }
 
     // Confirma transação
     $pdo->commit();
 
     // Redireciona com sucesso
-    $_SESSION['success_message'] = "Projeto '{$titulo}' cadastrado com sucesso! {$comodosInseridos} cômodos adicionados.";
+    $_SESSION['success_message'] = "Projeto '{$titulo}' cadastrado com sucesso! {$totalAndares} andar(es) e {$totalComodos} cômodos adicionados.";
     header("Location: ../dashboard.php?success=1");
     exit;
 

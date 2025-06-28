@@ -177,12 +177,12 @@ require_once '../includes/header.php';
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-currency-dollar"></i> Preço Total (R$) *
+                            <i class="bi bi-currency-dollar"></i> Valor do Projeto (R$) *
                         </label>
-                        <input type="number" step="0.01" name="preco_total" class="form-control" required 
-                               value="<?= $projeto['preco_total'] ?>"
+                        <input type="number" step="0.01" name="valor_projeto" class="form-control" required 
+                               value="<?= $projeto['valor_projeto'] ?>"
                                placeholder="0.00">
-                        <div class="invalid-feedback">Informe o preço total do projeto.</div>
+                        <div class="invalid-feedback">Informe o valor do projeto.</div>
                     </div>
                     
                     <div class="col-md-4">

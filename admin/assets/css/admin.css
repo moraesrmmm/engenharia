@@ -44,6 +44,61 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
+/* Estilos para Estrutura de Andares */
+.andar-item {
+    background: #f8f9fa !important;
+    border: 2px solid #e9ecef !important;
+    border-radius: 15px !important;
+    padding: 25px !important;
+    margin-bottom: 25px !important;
+    transition: all 0.3s ease;
+}
+
+.andar-item:hover {
+    border-color: #3498db !important;
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+}
+
+.andar-item h6 {
+    color: #3498db !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.comodo-item {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-bottom: 15px !important;
+    transition: all 0.3s ease;
+}
+
+.comodo-item:hover {
+    border-color: #28a745 !important;
+    box-shadow: 0 3px 10px rgba(40, 167, 69, 0.1);
+}
+
+.comodos-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.comodos-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comodos-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.comodos-container::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 10px;
+}
+
 /* Button Styles */
 .btn {
     border-radius: 15px;

@@ -46,12 +46,12 @@ if (!empty($filtros['quartos'])) {
 }
 
 if (!empty($filtros['preco_min'])) {
-    $where_conditions[] = "p.preco_total >= ?";
+    $where_conditions[] = "p.valor_projeto >= ?";
     $params[] = (float)$filtros['preco_min'];
 }
 
 if (!empty($filtros['preco_max'])) {
-    $where_conditions[] = "p.preco_total <= ?";
+    $where_conditions[] = "p.valor_projeto <= ?";
     $params[] = (float)$filtros['preco_max'];
 }
 
@@ -92,7 +92,7 @@ $stats_stmt = $pdo->query("
     SELECT 
         COUNT(*) as total_projetos,
         COUNT(CASE WHEN destaque = TRUE THEN 1 END) as total_destaques,
-        COALESCE(AVG(preco_total), 0) as preco_medio,
+        COALESCE(AVG(valor_projeto), 0) as preco_medio,
         COALESCE(AVG(area), 0) as area_media
     FROM projetos 
     WHERE ativo = TRUE
@@ -120,7 +120,7 @@ function gerarUrlFiltro($filtro, $valor) {
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="/engenharia/public/css/style.css" rel="stylesheet">
+    <link href="<?= asset('css/style.css') ?>" rel="stylesheet">
 </head>
 <body>
     <!-- Hero Section -->
@@ -284,7 +284,7 @@ function gerarUrlFiltro($filtro, $valor) {
                         <i class="bi bi-arrow-clockwise"></i> Ver Todos os Projetos
                     </a>
                 <?php else: ?>
-                    <a href="index.php" class="btn btn-primary btn-lg">
+                    <a href="<?= url('index.php') ?>" class="btn btn-primary btn-lg">
                         <i class="bi bi-house"></i> Voltar ao Início
                     </a>
                 <?php endif; ?>
@@ -303,7 +303,7 @@ function gerarUrlFiltro($filtro, $valor) {
 
                             <!-- Imagem -->
                             <div style="overflow: hidden;">
-                                <img src="/engenharia/public/uploads/<?= htmlspecialchars($projeto['capa_imagem']) ?>" 
+                                <img src="<?= asset('uploads/' . htmlspecialchars($projeto['capa_imagem'])) ?>" 
                                      class="public-project-image" 
                                      alt="<?= htmlspecialchars($projeto['titulo']) ?>">
                             </div>
@@ -335,14 +335,14 @@ function gerarUrlFiltro($filtro, $valor) {
                                     </div>
                                 </div>
 
-                                <?php if ($projeto['preco_total']): ?>
+                                <?php if ($projeto['valor_projeto']): ?>
                                     <div class="public-project-price">
                                         <i class="bi bi-currency-dollar"></i>
-                                        <?= formatarMoeda($projeto['preco_total']) ?>
+                                        <?= formatarMoeda($projeto['valor_projeto']) ?>
                                     </div>
                                 <?php endif; ?>
 
-                                <a href="detalhes_projeto.php?id=<?= $projeto['id'] ?>" class="public-project-button">
+                                <a href="<?= url('detalhes_projeto.php?id=' . $projeto['id']) ?>" class="public-project-button">
                                     <i class="bi bi-eye"></i> Ver Detalhes Completos
                                 </a>
                             </div>
@@ -354,7 +354,7 @@ function gerarUrlFiltro($filtro, $valor) {
 
         <!-- Botão Voltar -->
         <div class="text-center">
-            <a href="index.php" class="back-to-home">
+            <a href="<?= url('index.php') ?>" class="back-to-home">
                 <i class="bi bi-arrow-left"></i>
                 Voltar ao Início
             </a>

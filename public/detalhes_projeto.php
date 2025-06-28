@@ -37,8 +37,8 @@ $comodosData = $comodos->fetchAll();
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="/engenharia/public/css/style.css" rel="stylesheet">
-    <link href="/engenharia/public/css/detalhes.css" rel="stylesheet">
+    <link href="<?= asset('css/style.css') ?>" rel="stylesheet">
+    <link href="<?= asset('css/detalhes.css') ?>" rel="stylesheet">
 </head>
 <body>
     <!-- Hero Section -->
@@ -76,7 +76,7 @@ $comodosData = $comodos->fetchAll();
                 <div class="col-lg-8">
                     <!-- Imagem Principal -->
                     <div class="projeto-image-container">
-                        <img src="/engenharia/public/uploads/<?= htmlspecialchars($projeto['capa_imagem']) ?>" 
+                        <img src="<?= asset('uploads/' . htmlspecialchars($projeto['capa_imagem'])) ?>" 
                              class="projeto-image" 
                              alt="<?= htmlspecialchars($projeto['titulo']) ?>">
                     </div>
@@ -122,13 +122,13 @@ $comodosData = $comodos->fetchAll();
                         </div>
 
                         <!-- Preço Total -->
-                        <?php if ($projeto['preco_total']): ?>
+                        <?php if ($projeto['valor_projeto']): ?>
                             <div class="projeto-info-card">
                                 <div class="info-icon">
                                     <i class="bi bi-currency-dollar"></i>
                                 </div>
                                 <div class="info-title">Investimento</div>
-                                <div class="info-value"><?= formatarMoeda($projeto['preco_total']) ?></div>
+                                <div class="info-value"><?= formatarMoeda($projeto['valor_projeto']) ?></div>
                             </div>
                         <?php endif; ?>
 

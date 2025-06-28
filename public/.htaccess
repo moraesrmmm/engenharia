@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Arquivo padrão
+DirectoryIndex index.php
+
+# Prevenir acesso direto a arquivos de configuração
+<Files "config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Headers de segurança para uploads
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>

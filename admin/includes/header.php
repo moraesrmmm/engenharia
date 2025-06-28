@@ -1,9 +1,9 @@
 <?php 
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../../config/config.php';
 
-// Determinar caminho relativo baseado na localização atual
-$currentDir = dirname($_SERVER['SCRIPT_NAME']);
-$adminPath = '/engenharia/admin/';
+// Usar as funções de URL do config
+$adminPath = ADMIN_URL . '/';
 $assetsPath = $adminPath . 'assets/';
 ?>
 <!DOCTYPE html>

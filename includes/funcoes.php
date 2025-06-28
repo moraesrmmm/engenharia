@@ -43,36 +43,13 @@ function formatarMoeda($valor, $simbolo = true) {
 }
 
 /**
- * Formata dimensões para exibição
- * 
- * @param float $largura Largura em metros
- * @param float $comprimento Comprimento em metros
- * @return string Dimensões formatadas
- */
-function formatarDimensoes($largura, $comprimento) {
-    $larguraFormat = number_format($largura, 2, ',', '');
-    $comprimentoFormat = number_format($comprimento, 2, ',', '');
-    return "{$larguraFormat}m x {$comprimentoFormat}m";
-}
-
-/**
- * Calcula área a partir de largura e comprimento
- * 
- * @param float $largura Largura em metros
- * @param float $comprimento Comprimento em metros
- * @return float Área em metros quadrados
- */
-function calcularArea($largura, $comprimento) {
-    return $largura * $comprimento;
-}
-
-/**
  * Formata área para exibição
  * 
  * @param float $area Área em metros quadrados
  * @return string Área formatada
  */
 function formatarArea($area) {
+    if (is_null($area) || $area === '') return 'Não informado';
     return number_format($area, 2, ',', '.') . ' m²';
 }
 
@@ -118,5 +95,104 @@ function truncarTexto($texto, $limite = 150, $sufixo = '...') {
     }
     
     return $texto . $sufixo;
+}
+
+/**
+ * Buscar andares de um projeto com seus cômodos
+ */
+function buscarAndaresComComodos($pdo, $projeto_id) {
+    $stmt = $pdo->prepare("
+        SELECT a.*, 
+               COUNT(c.id) as total_comodos,
+               COUNT(CASE WHEN c.tipo IN ('Quarto', 'Suíte') THEN 1 END) as quartos
+        FROM andares a 
+        LEFT JOIN comodos c ON a.id = c.andar_id AND c.ativo = TRUE
+        WHERE a.projeto_id = ? AND a.ativo = TRUE 
+        GROUP BY a.id 
+        ORDER BY a.ordem, a.id
+    ");
+    $stmt->execute([$projeto_id]);
+    $andares = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Buscar cômodos de cada andar
+    foreach ($andares as &$andar) {
+        $stmt = $pdo->prepare("
+            SELECT * FROM comodos 
+            WHERE andar_id = ? AND ativo = TRUE 
+            ORDER BY tipo, nome
+        ");
+        $stmt->execute([$andar['id']]);
+        $andar['comodos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    return $andares;
+}
+
+/**
+ * Calcular estatísticas de um projeto
+ */
+function calcularEstatisticasProjeto($pdo, $projeto_id) {
+    $stmt = $pdo->prepare("
+        SELECT 
+            p.area_terreno,
+            p.area_construida,
+            COUNT(DISTINCT a.id) as total_andares,
+            COUNT(DISTINCT c.id) as total_comodos,
+            COUNT(DISTINCT CASE WHEN c.tipo IN ('Quarto', 'Suíte') THEN c.id END) as total_quartos,
+            COUNT(DISTINCT CASE WHEN c.tipo = 'Banheiro' THEN c.id END) as total_banheiros
+        FROM projetos p
+        LEFT JOIN andares a ON p.id = a.projeto_id AND a.ativo = TRUE
+        LEFT JOIN comodos c ON a.id = c.andar_id AND c.ativo = TRUE
+        WHERE p.id = ? AND p.ativo = TRUE
+        GROUP BY p.id
+    ");
+    $stmt->execute([$projeto_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Tipos de cômodos disponíveis
+ */
+function getTiposComodos() {
+    return [
+        'Quarto' => 'Quarto',
+        'Suíte' => 'Suíte',
+        'Banheiro' => 'Banheiro',
+        'Sala' => 'Sala',
+        'Cozinha' => 'Cozinha',
+        'Copa' => 'Copa',
+        'Área de Serviço' => 'Área de Serviço',
+        'Varanda' => 'Varanda',
+        'Garagem' => 'Garagem',
+        'Escritório' => 'Escritório',
+        'Biblioteca' => 'Biblioteca',
+        'Closet' => 'Closet',
+        'Despensa' => 'Despensa',
+        'Lavabo' => 'Lavabo',
+        'Hall' => 'Hall',
+        'Corredor' => 'Corredor',
+        'Escada' => 'Escada',
+        'Porão' => 'Porão',
+        'Sótão' => 'Sótão',
+        'Terraço' => 'Terraço',
+        'Área Gourmet' => 'Área Gourmet',
+        'Piscina' => 'Piscina',
+        'Outro' => 'Outro'
+    ];
+}
+
+/**
+ * Nomes de andares comuns
+ */
+function getNomesAndares() {
+    return [
+        'Subsolo' => 'Subsolo',
+        'Térreo' => 'Térreo',
+        '1º Andar' => '1º Andar',
+        '2º Andar' => '2º Andar',
+        '3º Andar' => '3º Andar',
+        'Cobertura' => 'Cobertura',
+        'Ático' => 'Ático'
+    ];
 }
 ?>
