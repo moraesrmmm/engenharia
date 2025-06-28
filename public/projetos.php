@@ -98,29 +98,33 @@ $where_clause = implode(' AND ', $where_conditions);
 
 // Buscar projetos com filtros
 $sql = "
-    SELECT p.*, 
-           (
-               -- Quartos diretos + quartos dos andares
-               SELECT COUNT(*) 
-               FROM (
-                   SELECT 1 FROM comodos c WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-                   UNION ALL
-                   SELECT 1 FROM comodos c 
-                   INNER JOIN andares a ON c.andar_id = a.id 
-                   WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
-               ) AS quartos_total
-           ) as quartos,
-           (
-               -- Total de cômodos diretos + cômodos dos andares
-               SELECT COUNT(*) 
-               FROM (
-                   SELECT 1 FROM comodos c WHERE c.projeto_id = p.id
-                   UNION ALL
-                   SELECT 1 FROM comodos c 
-                   INNER JOIN andares a ON c.andar_id = a.id 
-                   WHERE a.projeto_id = p.id
-               ) AS comodos_total
-           ) as total_comodos 
+    SELECT 
+        p.*,
+
+        (
+            SELECT COUNT(*) 
+            FROM comodos c 
+            WHERE c.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+        ) +
+        (
+            SELECT COUNT(*) 
+            FROM comodos c
+            INNER JOIN andares a ON c.andar_id = a.id 
+            WHERE a.projeto_id = p.id AND c.tipo IN ('Quarto', 'Suíte')
+        ) AS quartos,
+
+        (
+            SELECT COUNT(*) 
+            FROM comodos c 
+            WHERE c.projeto_id = p.id
+        ) +
+        (
+            SELECT COUNT(*) 
+            FROM comodos c
+            INNER JOIN andares a ON c.andar_id = a.id 
+            WHERE a.projeto_id = p.id
+        ) AS total_comodos
+
     FROM projetos p 
     WHERE {$where_clause}
     ORDER BY p.destaque DESC, p.criado_em DESC
