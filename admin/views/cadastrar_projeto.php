@@ -69,27 +69,47 @@
             <div class="form-section" data-section="2">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-rulers text-primary"></i> Áreas do Projeto
+                    <i class="bi bi-rulers text-primary"></i> Dimensões e Áreas do Projeto
                 </h5>
                 
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-arrow-left-right"></i> Largura do Terreno (m) *
+                        </label>
+                        <input type="number" step="0.01" name="largura_terreno" class="form-control" required 
+                               placeholder="0.00" id="largura-terreno" onchange="calcularAreaTerreno()">
+                        <div class="invalid-feedback">Informe a largura do terreno.</div>
+                        <small class="text-muted">Largura do terreno em metros</small>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-arrow-up-down"></i> Comprimento do Terreno (m) *
+                        </label>
+                        <input type="number" step="0.01" name="comprimento_terreno" class="form-control" required 
+                               placeholder="0.00" id="comprimento-terreno" onchange="calcularAreaTerreno()">
+                        <div class="invalid-feedback">Informe o comprimento do terreno.</div>
+                        <small class="text-muted">Comprimento do terreno em metros</small>
+                    </div>
+                    
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-badge-ad"></i> Área do Terreno (m²) *
                         </label>
-                        <input type="number" step="0.01" name="area_terreno" class="form-control" required 
-                               placeholder="0.00">
-                        <div class="invalid-feedback">Informe a área do terreno em metros quadrados.</div>
-                        <small class="text-muted">Área total disponível do terreno</small>
+                        <input type="number" step="0.01" name="area_terreno" class="form-control" required readonly
+                               placeholder="0.00" style="background-color: #f8f9fa;" id="area-terreno-display">
+                        <div class="invalid-feedback">Área calculada automaticamente.</div>
+                        <small class="text-muted">Calculado automaticamente</small>
                     </div>
                     
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">
                             <i class="bi bi-building"></i> Área Construída (m²)
                         </label>
                         <input type="number" step="0.01" name="area_construida" class="form-control" readonly 
                                placeholder="0.00" style="background-color: #f8f9fa;" id="area-construida-display">
-                        <small class="text-muted">Soma automática das áreas dos andares</small>
+                        <small class="text-muted">Soma automática dos andares</small>
                     </div>
                 </div>
             </div>
@@ -335,6 +355,19 @@ function calcularAreaConstruida() {
     if (areaDisplay) {
         areaDisplay.value = totalArea.toFixed(2);
     }
+}
+
+function calcularAreaTerreno() {
+    const largura = parseFloat(document.getElementById('largura-terreno').value) || 0;
+    const comprimento = parseFloat(document.getElementById('comprimento-terreno').value) || 0;
+    const area = largura * comprimento;
+    const areaDisplay = document.getElementById('area-terreno-display');
+    
+    if (areaDisplay) {
+        areaDisplay.value = area.toFixed(2);
+    }
+    
+    updateProgress();
 }
 
 function previewImagem(input) {

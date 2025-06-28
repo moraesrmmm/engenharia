@@ -118,11 +118,24 @@ $projetos = $stmt->fetchAll();
               <div class="project-info">
                 <div class="info-item">
                   <i class="bi bi-rulers text-primary"></i>
-                  <span><?= htmlspecialchars($p['largura_comprimento']) ?></span>
+                  <span>
+                    <?php if ($p['largura_terreno'] && $p['comprimento_terreno']): ?>
+                      <?= number_format($p['largura_terreno'], 1, ',', '.') ?>m × 
+                      <?= number_format($p['comprimento_terreno'], 1, ',', '.') ?>m
+                    <?php else: ?>
+                      Dimensões não informadas
+                    <?php endif; ?>
+                  </span>
                 </div>
                 <div class="info-item">
-                  <i class="bi bi-badge-ad text-primary"></i>
-                  <span><?= number_format($p['area'], 2, ',', '.') ?> m²</span>
+                  <i class="bi bi-building text-primary"></i>
+                  <span>
+                    <?php if ($p['area_construida']): ?>
+                      <?= number_format($p['area_construida'], 2, ',', '.') ?> m²
+                    <?php else: ?>
+                      Área não informada
+                    <?php endif; ?>
+                  </span>
                 </div>
                 <?php if ($p['valor_projeto']): ?>
                 <div class="info-item">

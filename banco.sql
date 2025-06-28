@@ -30,7 +30,9 @@ CREATE TABLE projetos (
     titulo VARCHAR(200) NOT NULL,
     descricao TEXT NOT NULL,
     
-    -- Áreas (nova estrutura)
+    -- Dimensões e áreas do terreno
+    largura_terreno DECIMAL(8,2) NOT NULL,
+    comprimento_terreno DECIMAL(8,2) NOT NULL,
     area_terreno DECIMAL(10,2) NOT NULL,
     area_construida DECIMAL(10,2) DEFAULT 0,
     
@@ -205,8 +207,8 @@ GROUP BY p.id;
 -- =================================================================
 
 -- Projeto de exemplo 1
-INSERT INTO projetos (titulo, descricao, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, capa_imagem, destaque) VALUES
-('Casa Moderna Térrea', 'Projeto de casa térrea moderna com 3 quartos, área gourmet e piscina. Design contemporâneo com linhas clean e integração com área externa.', 600.00, 450000.00, 180000.00, 270000.00, 'casa_moderna_1.jpg', TRUE);
+INSERT INTO projetos (titulo, descricao, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, capa_imagem, destaque) VALUES
+('Casa Moderna Térrea', 'Projeto de casa térrea moderna com 3 quartos, área gourmet e piscina. Design contemporâneo com linhas clean e integração com área externa.', 20.00, 30.00, 600.00, 450000.00, 180000.00, 270000.00, 'casa_moderna_1.jpg', TRUE);
 
 SET @projeto1_id = LAST_INSERT_ID();
 
@@ -230,8 +232,8 @@ INSERT INTO comodos (projeto_id, andar_id, tipo, nome, observacoes) VALUES
 (@projeto1_id, @andar1_id, 'Garagem', 'Garagem', 'Para 2 carros');
 
 -- Projeto de exemplo 2
-INSERT INTO projetos (titulo, descricao, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, capa_imagem, destaque) VALUES
-('Sobrado Contemporâneo', 'Sobrado de 2 pavimentos com arquitetura contemporânea. 4 suítes, home office, área de lazer completa e acabamento de alto padrão.', 800.00, 750000.00, 300000.00, 450000.00, 'sobrado_contemporaneo_1.jpg', FALSE);
+INSERT INTO projetos (titulo, descricao, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, capa_imagem, destaque) VALUES
+('Sobrado Contemporâneo', 'Sobrado de 2 pavimentos com arquitetura contemporânea. 4 suítes, home office, área de lazer completa e acabamento de alto padrão.', 25.00, 32.00, 800.00, 750000.00, 300000.00, 450000.00, 'sobrado_contemporaneo_1.jpg', FALSE);
 
 SET @projeto2_id = LAST_INSERT_ID();
 

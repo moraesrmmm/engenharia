@@ -56,12 +56,12 @@ if (!empty($filtros['preco_max'])) {
 }
 
 if (!empty($filtros['area_min'])) {
-    $where_conditions[] = "p.area >= ?";
+    $where_conditions[] = "p.area_terreno >= ?";
     $params[] = (float)$filtros['area_min'];
 }
 
 if (!empty($filtros['area_max'])) {
-    $where_conditions[] = "p.area <= ?";
+    $where_conditions[] = "p.area_terreno <= ?";
     $params[] = (float)$filtros['area_max'];
 }
 
@@ -93,7 +93,7 @@ $stats_stmt = $pdo->query("
         COUNT(*) as total_projetos,
         COUNT(CASE WHEN destaque = TRUE THEN 1 END) as total_destaques,
         COALESCE(AVG(valor_projeto), 0) as preco_medio,
-        COALESCE(AVG(area), 0) as area_media
+        COALESCE(AVG(area_terreno), 0) as area_media
     FROM projetos 
     WHERE ativo = TRUE
 ");
@@ -323,7 +323,7 @@ function gerarUrlFiltro($filtro, $valor) {
                                     </div>
                                     <div class="public-meta-item">
                                         <i class="bi bi-bounding-box public-meta-icon"></i>
-                                        <?= formatarArea($projeto['area']) ?>
+                                        <?= formatarArea($projeto['area_terreno']) ?>
                                     </div>
                                     <div class="public-meta-item">
                                         <i class="bi bi-door-open public-meta-icon"></i>

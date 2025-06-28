@@ -126,49 +126,70 @@ require_once '../includes/header.php';
                 </div>
             </div>
 
-            <!-- Seção 2: Dimensões -->
+            <!-- Seção 2: Dimensões do Terreno -->
             <div class="form-section" data-section="2">
                 <hr class="section-divider">
                 <h5 class="section-title">
-                    <i class="bi bi-rulers text-primary"></i> Dimensões e Área
+                    <i class="bi bi-rulers text-primary"></i> Dimensões do Terreno
                 </h5>
                 
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-arrow-left-right"></i> Largura (m) *
+                            <i class="bi bi-arrow-left-right"></i> Largura do Terreno (m) *
                         </label>
-                        <input type="number" step="0.01" name="largura" class="form-control" required 
-                               value="<?= $projeto['largura'] ?>"
-                               placeholder="0.00" onchange="calcularArea()">
-                        <div class="invalid-feedback">Informe a largura em metros.</div>
+                        <input type="number" step="0.01" name="largura_terreno" class="form-control" required 
+                               value="<?= $projeto['largura_terreno'] ?? '' ?>"
+                               placeholder="0.00" id="largura-terreno" onchange="calcularAreaTerreno()">
+                        <div class="invalid-feedback">Informe a largura do terreno em metros.</div>
+                        <small class="text-muted">Largura em metros</small>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-arrow-up-down"></i> Comprimento (m) *
+                            <i class="bi bi-arrow-up-down"></i> Comprimento do Terreno (m) *
                         </label>
-                        <input type="number" step="0.01" name="comprimento" class="form-control" required 
-                               value="<?= $projeto['comprimento'] ?>"
-                               placeholder="0.00" onchange="calcularArea()">
-                        <div class="invalid-feedback">Informe o comprimento em metros.</div>
+                        <input type="number" step="0.01" name="comprimento_terreno" class="form-control" required 
+                               value="<?= $projeto['comprimento_terreno'] ?? '' ?>"
+                               placeholder="0.00" id="comprimento-terreno" onchange="calcularAreaTerreno()">
+                        <div class="invalid-feedback">Informe o comprimento do terreno em metros.</div>
+                        <small class="text-muted">Comprimento em metros</small>
                     </div>
                     
                     <div class="col-md-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-badge-ad"></i> Área Total (m²) *
+                            <i class="bi bi-badge-ad"></i> Área do Terreno (m²) *
                         </label>
-                        <input type="number" step="0.01" name="area" class="form-control" required 
-                               value="<?= $projeto['area'] ?>"
-                               placeholder="0.00" readonly style="background-color: #f8f9fa;">
+                        <input type="number" step="0.01" name="area_terreno" class="form-control" required readonly
+                               value="<?= $projeto['area_terreno'] ?? '' ?>"
+                               placeholder="0.00" style="background-color: #f8f9fa;" id="area-terreno-display">
+                        <div class="invalid-feedback">Área calculada automaticamente.</div>
                         <small class="text-muted">Calculado automaticamente</small>
-                        <div class="invalid-feedback">A área deve ser calculada.</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Seção 3: Área Construída -->
+            <div class="form-section" data-section="3">
+                <hr class="section-divider">
+                <h5 class="section-title">
+                    <i class="bi bi-building text-primary"></i> Área Construída
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-building"></i> Área Construída (m²)
+                        </label>
+                        <input type="number" step="0.01" name="area_construida" class="form-control" readonly 
+                               value="<?= $projeto['area_construida'] ?? '' ?>"
+                               placeholder="0.00" style="background-color: #f8f9fa;" id="area-construida-display">
+                        <small class="text-muted">Soma automática das áreas dos andares</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Seção 3: Custos -->
-            <div class="form-section" data-section="3">
+            <!-- Seção 4: Custos -->
+            <div class="form-section" data-section="4">
                 <hr class="section-divider">
                 <h5 class="section-title">
                     <i class="bi bi-currency-dollar text-primary"></i> Custos do Projeto
@@ -207,8 +228,8 @@ require_once '../includes/header.php';
                 </div>
             </div>
 
-            <!-- Seção 4: Mídia -->
-            <div class="form-section" data-section="4">
+            <!-- Seção 5: Mídia -->
+            <div class="form-section" data-section="5">
                 <hr class="section-divider">
                 <h5 class="section-title">
                     <i class="bi bi-camera text-primary"></i> Mídia do Projeto
@@ -256,8 +277,8 @@ require_once '../includes/header.php';
                 </div>
             </div>
 
-            <!-- Seção 5: Cômodos -->
-            <div class="form-section" data-section="5">
+            <!-- Seção 6: Andares e Cômodos -->
+            <div class="form-section" data-section="6">
                 <hr class="section-divider">
                 <h5 class="section-title">
                     <i class="bi bi-house-door text-primary"></i> Cômodos do Projeto
@@ -353,12 +374,13 @@ require_once '../includes/header.php';
 <script>
 let comodoIndex = <?= count($comodos) ?>;
 
-// Função para calcular área automaticamente
-function calcularArea() {
-    const largura = parseFloat(document.querySelector('input[name="largura"]').value) || 0;
-    const comprimento = parseFloat(document.querySelector('input[name="comprimento"]').value) || 0;
+// Função para calcular área do terreno automaticamente
+function calcularAreaTerreno() {
+    const largura = parseFloat(document.getElementById('largura-terreno').value) || 0;
+    const comprimento = parseFloat(document.getElementById('comprimento-terreno').value) || 0;
     const area = largura * comprimento;
-    document.querySelector('input[name="area"]').value = area.toFixed(2);
+    document.getElementById('area-terreno-display').value = area.toFixed(2);
+    
     updateProgress();
 }
 
