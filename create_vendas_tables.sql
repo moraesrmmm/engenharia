@@ -58,5 +58,5 @@ INSERT INTO configuracoes_mp (chave, valor, descricao) VALUES
 ('mp_success_url', 'https://damonengenharia.free.nf/public/api/pagamento_sucesso.php', 'URL de retorno para pagamento aprovado'),
 ('mp_failure_url', 'https://damonengenharia.free.nf/public/api/pagamento_falha.php', 'URL de retorno para pagamento rejeitado'),
 ('mp_pending_url', 'https://damonengenharia.free.nf/public/api/pagamento_pendente.php', 'URL de retorno para pagamento pendente'),
-('email_remetente', 'romulo_moraes2018@hotmail.com', 'Email remetente para envio dos arquivos'),
+('email_remetente', 'damon_engenharia@hotmail.com', 'Email remetente para envio dos arquivos'),
 ('email_nome_remetente', 'Projetos de Engenharia', 'Nome do remetente dos emails');

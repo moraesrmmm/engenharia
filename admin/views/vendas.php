@@ -75,43 +75,22 @@ $stats = $pdo->query("
     FROM vendas 
     WHERE data_compra >= DATE_SUB(NOW(), INTERVAL 30 DAY)
 ")->fetch();
+
+require_once '../includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Vendas - Admin</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="<?= asset('css/admin.css') ?>" rel="stylesheet">
-</head>
-<body>
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <?php include '../includes/sidebar.php'; ?>
-        
-        <!-- Main Content -->
-        <div class="admin-main">
-            <!-- Header -->
-            <div class="admin-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2><i class="bi bi-cart-check"></i> Gerenciar Vendas</h2>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Vendas</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2><i class="bi bi-cart-check"></i> Gerenciar Vendas</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
+                <li class="breadcrumb-item active">Vendas</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="admin-card-body">
 
             <!-- Estatísticas -->
             <div class="row g-3 mb-4">
@@ -369,5 +348,6 @@ $stats = $pdo->query("
             }
         }
     </script>
-</body>
-</html>
+</div>
+
+<?php require_once '../includes/footer.php'; ?>
