@@ -1,5 +1,24 @@
 <?php require_once '../includes/header.php'; ?>
 
+<?php
+// Recuperar dados do formulário em caso de erro
+$form_data = $_SESSION['form_data'] ?? [];
+// Limpar dados após uso
+if (isset($_SESSION['form_data'])) {
+    unset($_SESSION['form_data']);
+}
+
+// Função helper para marcar option selecionada
+function isSelected($value, $form_value) {
+    return $value === $form_value ? 'selected' : '';
+}
+
+// Função helper para marcar checkbox/radio
+function isChecked($value, $form_value) {
+    return $value == $form_value ? 'checked' : '';
+}
+?>
+
 <!-- Mensagens de feedback -->
 <?php if (isset($_SESSION['error_message'])): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -40,6 +59,7 @@
                             <i class="bi bi-pencil"></i> Título do Projeto *
                         </label>
                         <input type="text" name="titulo" class="form-control" required 
+                               value="<?= htmlspecialchars($form_data['titulo'] ?? '') ?>"
                                placeholder="Ex: Casa Moderna em Condomínio Fechado">
                         <div class="invalid-feedback">Por favor, informe o título do projeto.</div>
                     </div>
@@ -49,7 +69,7 @@
                             <i class="bi bi-text-paragraph"></i> Descrição do Projeto *
                         </label>
                         <textarea name="descricao" class="form-control" rows="4" required
-                                  placeholder="Descreva detalhadamente o projeto, suas características principais e diferenciais..."></textarea>
+                                  placeholder="Descreva detalhadamente o projeto, suas características principais e diferenciais..."><?= htmlspecialchars($form_data['descricao'] ?? '') ?></textarea>
                         <div class="invalid-feedback">Por favor, descreva o projeto.</div>
                     </div>
                     
@@ -60,12 +80,12 @@
                         <select name="tipo_projeto" class="form-select" required>
                             <option value="">Selecione o tipo de projeto...</option>
                             <optgroup label="Residencial Térrea">
-                                <option value="Casa Térrea">Casa Térrea</option>
-                                <option value="Casa de Campo">Casa de Campo</option>
-                                <option value="Casa de Praia">Casa de Praia</option>
-                                <option value="Casa com Piscina">Casa com Piscina</option>
-                                <option value="Casa Geminada">Casa Geminada</option>
-                                <option value="Chalé">Chalé</option>
+                                <option value="Casa Térrea" <?= isSelected('Casa Térrea', $form_data['tipo_projeto'] ?? '') ?>>Casa Térrea</option>
+                                <option value="Casa de Campo" <?= isSelected('Casa de Campo', $form_data['tipo_projeto'] ?? '') ?>>Casa de Campo</option>
+                                <option value="Casa de Praia" <?= isSelected('Casa de Praia', $form_data['tipo_projeto'] ?? '') ?>>Casa de Praia</option>
+                                <option value="Casa com Piscina" <?= isSelected('Casa com Piscina', $form_data['tipo_projeto'] ?? '') ?>>Casa com Piscina</option>
+                                <option value="Casa Geminada" <?= isSelected('Casa Geminada', $form_data['tipo_projeto'] ?? '') ?>>Casa Geminada</option>
+                                <option value="Chalé" <?= isSelected('Chalé', $form_data['tipo_projeto'] ?? '') ?>>Chalé</option>
                             </optgroup>
                             <optgroup label="Residencial Múltiplos Pavimentos">
                                 <option value="Sobrado">Sobrado</option>
@@ -122,7 +142,8 @@
                     
                     <div class="col-12">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="destaque" id="destaque" value="1">
+                            <input class="form-check-input" type="checkbox" name="destaque" id="destaque" value="1"
+                                   <?= isChecked('1', $form_data['destaque'] ?? '') ?>>
                             <label class="form-check-label fw-bold" for="destaque">
                                 <i class="bi bi-star-fill text-warning"></i> Projeto em Destaque
                             </label>
@@ -145,6 +166,7 @@
                             <i class="bi bi-arrow-left-right"></i> Largura do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="largura_terreno" class="form-control" required 
+                               value="<?= htmlspecialchars($form_data['largura_terreno'] ?? '') ?>"
                                placeholder="0.00" id="largura-terreno" onchange="calcularAreaTerreno()">
                         <div class="invalid-feedback">Informe a largura do terreno.</div>
                         <small class="text-muted">Largura do terreno em metros</small>
@@ -155,6 +177,7 @@
                             <i class="bi bi-arrow-up-down"></i> Comprimento do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="comprimento_terreno" class="form-control" required 
+                               value="<?= htmlspecialchars($form_data['comprimento_terreno'] ?? '') ?>"
                                placeholder="0.00" id="comprimento-terreno" onchange="calcularAreaTerreno()">
                         <div class="invalid-feedback">Informe o comprimento do terreno.</div>
                         <small class="text-muted">Comprimento do terreno em metros</small>
@@ -165,6 +188,7 @@
                             <i class="bi bi-badge-ad"></i> Área do Terreno (m²) *
                         </label>
                         <input type="number" step="0.01" name="area_terreno" class="form-control" required readonly
+                               value="<?= htmlspecialchars($form_data['area_terreno'] ?? '') ?>"
                                placeholder="0.00" style="background-color: #f8f9fa;" id="area-terreno-display">
                         <div class="invalid-feedback">Área calculada automaticamente.</div>
                         <small class="text-muted">Calculado automaticamente</small>
@@ -194,6 +218,7 @@
                             <i class="bi bi-cash-stack"></i> Valor do Projeto (R$)
                         </label>
                         <input type="number" step="0.01" name="valor_projeto" class="form-control" 
+                               value="<?= htmlspecialchars($form_data['valor_projeto'] ?? '') ?>"
                                placeholder="0.00">
                         <small class="text-muted">Valor total do projeto</small>
                     </div>
@@ -203,6 +228,7 @@
                             <i class="bi bi-tools"></i> Mão de Obra (R$)
                         </label>
                         <input type="number" step="0.01" name="custo_mao_obra" class="form-control" 
+                               value="<?= htmlspecialchars($form_data['custo_mao_obra'] ?? '') ?>"
                                placeholder="0.00">
                         <small class="text-muted">Custo da mão de obra</small>
                     </div>
@@ -212,6 +238,7 @@
                             <i class="bi bi-bricks"></i> Materiais (R$)
                         </label>
                         <input type="number" step="0.01" name="custo_materiais" class="form-control" 
+                               value="<?= htmlspecialchars($form_data['custo_materiais'] ?? '') ?>"
                                placeholder="0.00">
                         <small class="text-muted">Custo dos materiais</small>
                     </div>
@@ -231,6 +258,7 @@
                             <i class="bi bi-youtube"></i> Vídeo do Projeto
                         </label>
                         <input type="url" name="video_url" class="form-control" 
+                               value="<?= htmlspecialchars($form_data['video_url'] ?? '') ?>"
                                placeholder="https://www.youtube.com/watch?v=...">
                         <small class="text-muted">URL do YouTube (opcional)</small>
                     </div>

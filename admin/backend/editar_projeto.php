@@ -215,6 +215,11 @@ try {
     // Confirma transação
     $pdo->commit();
     
+    // Limpar dados do formulário em caso de sucesso
+    if (isset($_SESSION['form_data'])) {
+        unset($_SESSION['form_data']);
+    }
+    
     $_SESSION['success_message'] = 'Projeto atualizado com sucesso!';
     header("Location: ../views/editar_projeto.php?id=" . $projeto_id);
     exit;
@@ -228,6 +233,8 @@ try {
         unlink('../../public/uploads/' . $nova_imagem);
     }
     
+    // Salvar dados do formulário para repreenchimento
+    $_SESSION['form_data'] = $_POST;
     $_SESSION['error_message'] = $e->getMessage();
     header("Location: ../views/editar_projeto.php?id=" . $projeto_id);
     exit;

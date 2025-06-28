@@ -42,6 +42,28 @@ try {
 }
 
 require_once '../includes/header.php'; 
+
+// Recuperar dados do formulário em caso de erro ou usar dados do projeto
+$form_data = $_SESSION['form_data'] ?? [];
+// Limpar dados após uso
+if (isset($_SESSION['form_data'])) {
+    unset($_SESSION['form_data']);
+}
+
+// Função helper para obter valor do campo (prioriza form_data sobre dados do projeto)
+function getFieldValue($field, $form_data, $projeto) {
+    return $form_data[$field] ?? $projeto[$field] ?? '';
+}
+
+// Função helper para marcar option selecionada
+function isSelected($value, $current_value) {
+    return $value === $current_value ? 'selected' : '';
+}
+
+// Função helper para marcar checkbox/radio
+function isChecked($value, $current_value) {
+    return $value == $current_value ? 'checked' : '';
+}
 ?>
 
 <!-- Mensagens de feedback -->
@@ -105,7 +127,7 @@ require_once '../includes/header.php';
                             <i class="bi bi-pencil"></i> Título do Projeto *
                         </label>
                         <input type="text" name="titulo" class="form-control" required 
-                               value="<?= htmlspecialchars($projeto['titulo']) ?>"
+                               value="<?= htmlspecialchars(getFieldValue('titulo', $form_data, $projeto)) ?>"
                                placeholder="Ex: Casa Moderna em Condomínio Fechado">
                         <div class="invalid-feedback">Por favor, informe o título do projeto.</div>
                     </div>
@@ -115,7 +137,7 @@ require_once '../includes/header.php';
                             <i class="bi bi-text-paragraph"></i> Descrição do Projeto *
                         </label>
                         <textarea name="descricao" class="form-control" rows="4" required
-                                  placeholder="Descreva detalhadamente o projeto, suas características principais e diferenciais..."><?= htmlspecialchars($projeto['descricao']) ?></textarea>
+                                  placeholder="Descreva detalhadamente o projeto, suas características principais e diferenciais..."><?= htmlspecialchars(getFieldValue('descricao', $form_data, $projeto)) ?></textarea>
                         <div class="invalid-feedback">Por favor, descreva o projeto.</div>
                     </div>
                     
@@ -126,12 +148,12 @@ require_once '../includes/header.php';
                         <select name="tipo_projeto" class="form-select" required>
                             <option value="">Selecione o tipo de projeto...</option>
                             <optgroup label="Residencial Térrea">
-                                <option value="Casa Térrea" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Térrea' ? 'selected' : '' ?>>Casa Térrea</option>
-                                <option value="Casa de Campo" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa de Campo' ? 'selected' : '' ?>>Casa de Campo</option>
-                                <option value="Casa de Praia" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa de Praia' ? 'selected' : '' ?>>Casa de Praia</option>
-                                <option value="Casa com Piscina" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Piscina' ? 'selected' : '' ?>>Casa com Piscina</option>
-                                <option value="Casa Geminada" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Geminada' ? 'selected' : '' ?>>Casa Geminada</option>
-                                <option value="Chalé" <?= ($projeto['tipo_projeto'] ?? '') == 'Chalé' ? 'selected' : '' ?>>Chalé</option>
+                                <option value="Casa Térrea" <?= isSelected('Casa Térrea', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Térrea</option>
+                                <option value="Casa de Campo" <?= isSelected('Casa de Campo', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa de Campo</option>
+                                <option value="Casa de Praia" <?= isSelected('Casa de Praia', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa de Praia</option>
+                                <option value="Casa com Piscina" <?= isSelected('Casa com Piscina', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa com Piscina</option>
+                                <option value="Casa Geminada" <?= isSelected('Casa Geminada', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Casa Geminada</option>
+                                <option value="Chalé" <?= isSelected('Chalé', getFieldValue('tipo_projeto', $form_data, $projeto)) ?>>Chalé</option>
                             </optgroup>
                             <optgroup label="Residencial Múltiplos Pavimentos">
                                 <option value="Sobrado" <?= ($projeto['tipo_projeto'] ?? '') == 'Sobrado' ? 'selected' : '' ?>>Sobrado</option>
@@ -212,7 +234,7 @@ require_once '../includes/header.php';
                             <i class="bi bi-arrow-left-right"></i> Largura do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="largura_terreno" class="form-control" required 
-                               value="<?= $projeto['largura_terreno'] ?? '' ?>"
+                               value="<?= htmlspecialchars(getFieldValue('largura_terreno', $form_data, $projeto)) ?>"
                                placeholder="0.00" id="largura-terreno" onchange="calcularAreaTerreno()">
                         <div class="invalid-feedback">Informe a largura do terreno em metros.</div>
                         <small class="text-muted">Largura em metros</small>
@@ -223,7 +245,7 @@ require_once '../includes/header.php';
                             <i class="bi bi-arrow-up-down"></i> Comprimento do Terreno (m) *
                         </label>
                         <input type="number" step="0.01" name="comprimento_terreno" class="form-control" required 
-                               value="<?= $projeto['comprimento_terreno'] ?? '' ?>"
+                               value="<?= htmlspecialchars(getFieldValue('comprimento_terreno', $form_data, $projeto)) ?>"
                                placeholder="0.00" id="comprimento-terreno" onchange="calcularAreaTerreno()">
                         <div class="invalid-feedback">Informe o comprimento do terreno em metros.</div>
                         <small class="text-muted">Comprimento em metros</small>

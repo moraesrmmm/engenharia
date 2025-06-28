@@ -200,6 +200,11 @@ try {
     // Confirma transação
     $pdo->commit();
 
+    // Limpar dados do formulário em caso de sucesso
+    if (isset($_SESSION['form_data'])) {
+        unset($_SESSION['form_data']);
+    }
+
     // Redireciona com sucesso
     $_SESSION['success_message'] = "Projeto '{$titulo}' cadastrado com sucesso! {$totalAndares} andar(es) e {$totalComodos} cômodos adicionados.";
     header("Location: ../dashboard.php?success=1");
@@ -214,6 +219,8 @@ try {
         unlink($uploadDir . $nomeImagem);
     }
     
+    // Salvar dados do formulário para repreenchimento
+    $_SESSION['form_data'] = $_POST;
     $_SESSION['error_message'] = $e->getMessage();
     header("Location: ../views/cadastrar_projeto.php?error=1");
     exit;
