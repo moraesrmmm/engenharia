@@ -41,11 +41,12 @@ try {
     // Validações básicas
     $titulo = trim($_POST['titulo'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
+    $tipo_projeto = trim($_POST['tipo_projeto'] ?? 'Casa Térrea');
     $largura_terreno = floatval($_POST['largura_terreno'] ?? 0);
     $comprimento_terreno = floatval($_POST['comprimento_terreno'] ?? 0);
     $area_terreno = floatval($_POST['area_terreno'] ?? 0);
 
-    if (empty($titulo) || empty($descricao) || $largura_terreno <= 0 || $comprimento_terreno <= 0 || $area_terreno <= 0) {
+    if (empty($titulo) || empty($descricao) || empty($tipo_projeto) || $largura_terreno <= 0 || $comprimento_terreno <= 0 || $area_terreno <= 0) {
         throw new Exception('Todos os campos obrigatórios devem ser preenchidos corretamente!');
     }
 
@@ -88,15 +89,15 @@ try {
     $video_url = convertYouTubeUrl(trim($_POST['video_url'] ?? ''));
     $destaque = isset($_POST['destaque']) ? 1 : 0;
 
-    // Salva projeto com novos campos (largura, comprimento e área do terreno)
+    // Salva projeto com novos campos (tipo, largura, comprimento e área do terreno)
     $stmt = $pdo->prepare("
         INSERT INTO projetos 
-        (titulo, descricao, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, video_url, capa_imagem, destaque) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (titulo, descricao, tipo_projeto, largura_terreno, comprimento_terreno, area_terreno, valor_projeto, custo_mao_obra, custo_materiais, video_url, capa_imagem, destaque) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $resultado = $stmt->execute([
-        $titulo, $descricao, $largura_terreno, $comprimento_terreno, $area_terreno,
+        $titulo, $descricao, $tipo_projeto, $largura_terreno, $comprimento_terreno, $area_terreno,
         $valor_projeto, $custo_mao_obra, $custo_materiais, $video_url, $nomeImagem, $destaque
     ]);
 

@@ -54,6 +54,73 @@
                     </div>
                     
                     <div class="col-12">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-house-fill"></i> Tipo de Projeto *
+                        </label>
+                        <select name="tipo_projeto" class="form-select" required>
+                            <option value="">Selecione o tipo de projeto...</option>
+                            <optgroup label="Residencial Térrea">
+                                <option value="Casa Térrea">Casa Térrea</option>
+                                <option value="Casa de Campo">Casa de Campo</option>
+                                <option value="Casa de Praia">Casa de Praia</option>
+                                <option value="Casa com Piscina">Casa com Piscina</option>
+                                <option value="Casa Geminada">Casa Geminada</option>
+                                <option value="Chalé">Chalé</option>
+                            </optgroup>
+                            <optgroup label="Residencial Múltiplos Pavimentos">
+                                <option value="Sobrado">Sobrado</option>
+                                <option value="Casa Duplex">Casa Duplex</option>
+                                <option value="Casa Triplex">Casa Triplex</option>
+                                <option value="Casa com Mezanino">Casa com Mezanino</option>
+                                <option value="Casa com Loft">Casa com Loft</option>
+                                <option value="Mansão">Mansão</option>
+                            </optgroup>
+                            <optgroup label="Estilos Arquitetônicos">
+                                <option value="Residência Moderna">Residência Moderna</option>
+                                <option value="Residência Clássica">Residência Clássica</option>
+                                <option value="Residência Minimalista">Residência Minimalista</option>
+                            </optgroup>
+                            <optgroup label="Construção Especial">
+                                <option value="Casa Container">Casa Container</option>
+                                <option value="Casa Sustentável">Casa Sustentável</option>
+                                <option value="Casa Pré-Fabricada">Casa Pré-Fabricada</option>
+                                <option value="Casa com Edícula">Casa com Edícula</option>
+                            </optgroup>
+                            <optgroup label="Apartamentos">
+                                <option value="Kitnet">Kitnet</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Apartamento">Apartamento</option>
+                                <option value="Cobertura">Cobertura</option>
+                            </optgroup>
+                            <optgroup label="Predial">
+                                <option value="Prédio Residencial">Prédio Residencial</option>
+                                <option value="Prédio Comercial">Prédio Comercial</option>
+                            </optgroup>
+                            <optgroup label="Comercial">
+                                <option value="Casa Comercial">Casa Comercial</option>
+                                <option value="Escritório">Escritório</option>
+                                <option value="Loja">Loja</option>
+                                <option value="Consultório">Consultório</option>
+                                <option value="Clínica">Clínica</option>
+                                <option value="Restaurante">Restaurante</option>
+                                <option value="Cafeteria">Cafeteria</option>
+                                <option value="Academia">Academia</option>
+                                <option value="Salão de Beleza">Salão de Beleza</option>
+                            </optgroup>
+                            <optgroup label="Industrial">
+                                <option value="Galpão">Galpão</option>
+                                <option value="Barracão">Barracão</option>
+                                <option value="Oficina">Oficina</option>
+                                <option value="Depósito">Depósito</option>
+                                <option value="Armazém">Armazém</option>
+                            </optgroup>
+                            <option value="Outro">Outro</option>
+                        </select>
+                        <div class="invalid-feedback">Por favor, selecione o tipo de projeto.</div>
+                        <small class="text-muted">Escolha a categoria que melhor descreve o projeto</small>
+                    </div>
+                    
+                    <div class="col-12">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="destaque" id="destaque" value="1">
                             <label class="form-check-label fw-bold" for="destaque">

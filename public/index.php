@@ -116,6 +116,12 @@ $projetos = $stmt->fetchAll();
             <div class="project-content">
               <h5 class="project-title"><?= htmlspecialchars($p['titulo']) ?></h5>
               <div class="project-info">
+                <?php if (!empty($p['tipo_projeto'])): ?>
+                <div class="info-item">
+                  <i class="bi bi-house-fill text-primary"></i>
+                  <span><?= htmlspecialchars($p['tipo_projeto']) ?></span>
+                </div>
+                <?php endif; ?>
                 <div class="info-item">
                   <i class="bi bi-rulers text-primary"></i>
                   <span>

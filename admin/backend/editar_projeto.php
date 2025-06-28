@@ -50,6 +50,7 @@ try {
     // Validações básicas
     $titulo = trim($_POST['titulo'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
+    $tipo_projeto = trim($_POST['tipo_projeto'] ?? 'Casa Térrea');
     $largura_terreno = floatval($_POST['largura_terreno'] ?? 0);
     $comprimento_terreno = floatval($_POST['comprimento_terreno'] ?? 0);
     $area_terreno = floatval($_POST['area_terreno'] ?? 0);
@@ -59,7 +60,7 @@ try {
     $video_url = trim($_POST['video_url'] ?? '');
     $destaque = isset($_POST['destaque']) ? 1 : 0;
 
-    if (empty($titulo) || empty($descricao) || $largura_terreno <= 0 || $comprimento_terreno <= 0 || $area_terreno <= 0) {
+    if (empty($titulo) || empty($descricao) || empty($tipo_projeto) || $largura_terreno <= 0 || $comprimento_terreno <= 0 || $area_terreno <= 0) {
         throw new Exception('Todos os campos obrigatórios devem ser preenchidos corretamente!');
     }
 
@@ -119,10 +120,11 @@ try {
     // Converte URL do YouTube
     $video_url = convertYouTubeUrl($video_url);
 
-    // Atualiza o projeto (com largura, comprimento e área do terreno)
+    // Atualiza o projeto (com tipo, largura, comprimento e área do terreno)
     $sql_update = "UPDATE projetos SET 
                    titulo = ?, 
                    descricao = ?, 
+                   tipo_projeto = ?, 
                    largura_terreno = ?, 
                    comprimento_terreno = ?, 
                    area_terreno = ?, 
@@ -132,7 +134,7 @@ try {
                    video_url = ?, 
                    destaque = ?";
     
-    $params = [$titulo, $descricao, $largura_terreno, $comprimento_terreno, $area_terreno, 
+    $params = [$titulo, $descricao, $tipo_projeto, $largura_terreno, $comprimento_terreno, $area_terreno, 
                $valor_projeto, $custo_mao_obra, $custo_materiais, $video_url, $destaque];
 
     // Adiciona atualização da imagem se uma nova foi enviada

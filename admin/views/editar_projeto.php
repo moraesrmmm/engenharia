@@ -114,6 +114,73 @@ require_once '../includes/header.php';
                     </div>
                     
                     <div class="col-12">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-house-fill"></i> Tipo de Projeto *
+                        </label>
+                        <select name="tipo_projeto" class="form-select" required>
+                            <option value="">Selecione o tipo de projeto...</option>
+                            <optgroup label="Residencial Térrea">
+                                <option value="Casa Térrea" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Térrea' ? 'selected' : '' ?>>Casa Térrea</option>
+                                <option value="Casa de Campo" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa de Campo' ? 'selected' : '' ?>>Casa de Campo</option>
+                                <option value="Casa de Praia" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa de Praia' ? 'selected' : '' ?>>Casa de Praia</option>
+                                <option value="Casa com Piscina" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Piscina' ? 'selected' : '' ?>>Casa com Piscina</option>
+                                <option value="Casa Geminada" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Geminada' ? 'selected' : '' ?>>Casa Geminada</option>
+                                <option value="Chalé" <?= ($projeto['tipo_projeto'] ?? '') == 'Chalé' ? 'selected' : '' ?>>Chalé</option>
+                            </optgroup>
+                            <optgroup label="Residencial Múltiplos Pavimentos">
+                                <option value="Sobrado" <?= ($projeto['tipo_projeto'] ?? '') == 'Sobrado' ? 'selected' : '' ?>>Sobrado</option>
+                                <option value="Casa Duplex" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Duplex' ? 'selected' : '' ?>>Casa Duplex</option>
+                                <option value="Casa Triplex" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Triplex' ? 'selected' : '' ?>>Casa Triplex</option>
+                                <option value="Casa com Mezanino" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Mezanino' ? 'selected' : '' ?>>Casa com Mezanino</option>
+                                <option value="Casa com Loft" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Loft' ? 'selected' : '' ?>>Casa com Loft</option>
+                                <option value="Mansão" <?= ($projeto['tipo_projeto'] ?? '') == 'Mansão' ? 'selected' : '' ?>>Mansão</option>
+                            </optgroup>
+                            <optgroup label="Estilos Arquitetônicos">
+                                <option value="Residência Moderna" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Moderna' ? 'selected' : '' ?>>Residência Moderna</option>
+                                <option value="Residência Clássica" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Clássica' ? 'selected' : '' ?>>Residência Clássica</option>
+                                <option value="Residência Minimalista" <?= ($projeto['tipo_projeto'] ?? '') == 'Residência Minimalista' ? 'selected' : '' ?>>Residência Minimalista</option>
+                            </optgroup>
+                            <optgroup label="Construção Especial">
+                                <option value="Casa Container" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Container' ? 'selected' : '' ?>>Casa Container</option>
+                                <option value="Casa Sustentável" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Sustentável' ? 'selected' : '' ?>>Casa Sustentável</option>
+                                <option value="Casa Pré-Fabricada" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Pré-Fabricada' ? 'selected' : '' ?>>Casa Pré-Fabricada</option>
+                                <option value="Casa com Edícula" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa com Edícula' ? 'selected' : '' ?>>Casa com Edícula</option>
+                            </optgroup>
+                            <optgroup label="Apartamentos">
+                                <option value="Kitnet" <?= ($projeto['tipo_projeto'] ?? '') == 'Kitnet' ? 'selected' : '' ?>>Kitnet</option>
+                                <option value="Studio" <?= ($projeto['tipo_projeto'] ?? '') == 'Studio' ? 'selected' : '' ?>>Studio</option>
+                                <option value="Apartamento" <?= ($projeto['tipo_projeto'] ?? '') == 'Apartamento' ? 'selected' : '' ?>>Apartamento</option>
+                                <option value="Cobertura" <?= ($projeto['tipo_projeto'] ?? '') == 'Cobertura' ? 'selected' : '' ?>>Cobertura</option>
+                            </optgroup>
+                            <optgroup label="Predial">
+                                <option value="Prédio Residencial" <?= ($projeto['tipo_projeto'] ?? '') == 'Prédio Residencial' ? 'selected' : '' ?>>Prédio Residencial</option>
+                                <option value="Prédio Comercial" <?= ($projeto['tipo_projeto'] ?? '') == 'Prédio Comercial' ? 'selected' : '' ?>>Prédio Comercial</option>
+                            </optgroup>
+                            <optgroup label="Comercial">
+                                <option value="Casa Comercial" <?= ($projeto['tipo_projeto'] ?? '') == 'Casa Comercial' ? 'selected' : '' ?>>Casa Comercial</option>
+                                <option value="Escritório" <?= ($projeto['tipo_projeto'] ?? '') == 'Escritório' ? 'selected' : '' ?>>Escritório</option>
+                                <option value="Loja" <?= ($projeto['tipo_projeto'] ?? '') == 'Loja' ? 'selected' : '' ?>>Loja</option>
+                                <option value="Consultório" <?= ($projeto['tipo_projeto'] ?? '') == 'Consultório' ? 'selected' : '' ?>>Consultório</option>
+                                <option value="Clínica" <?= ($projeto['tipo_projeto'] ?? '') == 'Clínica' ? 'selected' : '' ?>>Clínica</option>
+                                <option value="Restaurante" <?= ($projeto['tipo_projeto'] ?? '') == 'Restaurante' ? 'selected' : '' ?>>Restaurante</option>
+                                <option value="Cafeteria" <?= ($projeto['tipo_projeto'] ?? '') == 'Cafeteria' ? 'selected' : '' ?>>Cafeteria</option>
+                                <option value="Academia" <?= ($projeto['tipo_projeto'] ?? '') == 'Academia' ? 'selected' : '' ?>>Academia</option>
+                                <option value="Salão de Beleza" <?= ($projeto['tipo_projeto'] ?? '') == 'Salão de Beleza' ? 'selected' : '' ?>>Salão de Beleza</option>
+                            </optgroup>
+                            <optgroup label="Industrial">
+                                <option value="Galpão" <?= ($projeto['tipo_projeto'] ?? '') == 'Galpão' ? 'selected' : '' ?>>Galpão</option>
+                                <option value="Barracão" <?= ($projeto['tipo_projeto'] ?? '') == 'Barracão' ? 'selected' : '' ?>>Barracão</option>
+                                <option value="Oficina" <?= ($projeto['tipo_projeto'] ?? '') == 'Oficina' ? 'selected' : '' ?>>Oficina</option>
+                                <option value="Depósito" <?= ($projeto['tipo_projeto'] ?? '') == 'Depósito' ? 'selected' : '' ?>>Depósito</option>
+                                <option value="Armazém" <?= ($projeto['tipo_projeto'] ?? '') == 'Armazém' ? 'selected' : '' ?>>Armazém</option>
+                            </optgroup>
+                            <option value="Outro" <?= ($projeto['tipo_projeto'] ?? '') == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                        </select>
+                        <div class="invalid-feedback">Por favor, selecione o tipo de projeto.</div>
+                        <small class="text-muted">Escolha a categoria que melhor descreve o projeto</small>
+                    </div>
+                    
+                    <div class="col-12">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="destaque" id="destaque" value="1" 
                                    <?= $projeto['destaque'] ? 'checked' : '' ?>>

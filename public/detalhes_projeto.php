@@ -121,6 +121,17 @@ $comodosData = $comodos->fetchAll();
                 <!-- Sidebar com Informações -->
                 <div class="col-lg-4">
                     <div class="info-cards-grid">
+                        <!-- Tipo de Projeto -->
+                        <?php if (!empty($projeto['tipo_projeto'])): ?>
+                            <div class="projeto-info-card">
+                                <div class="info-icon">
+                                    <i class="bi bi-house-fill"></i>
+                                </div>
+                                <div class="info-title">Tipo de Projeto</div>
+                                <div class="info-value"><?= htmlspecialchars($projeto['tipo_projeto']) ?></div>
+                            </div>
+                        <?php endif; ?>
+
                         <!-- Dimensões do Terreno -->
                         <div class="projeto-info-card">
                             <div class="info-icon">
